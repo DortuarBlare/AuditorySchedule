@@ -1,11 +1,25 @@
 #include "ScheduleDataMapper.h"
 
 ScheduleDataMapper::ScheduleDataMapper() {
-    connectToDB();
+    cout << connectToDB() << endl;
 }
 
 ScheduleDataMapper::~ScheduleDataMapper() {
+    cout << disconnectFromDB() << endl;
+    this->scheduleVector.clear();
+    this->scheduleVector.shrink_to_fit();
+}
 
+bool ScheduleDataMapper::insert(Schedule schedule) {
+    SQLINTEGER id = schedule.getId();
+    SQLWCHAR group[20];
+    strcpy_s((char*)group, strlen(schedule.getGroup().c_str()) + 1, schedule.getGroup().c_str());
+    retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &id, 0, NULL);
+    retcode = SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, group, 0, NULL);
+
+    retcode = SQLPrepare(hstmt, (SQLWCHAR*)L"INSERT INTO schedule VALUES (?, ?)", SQL_NTS);
+    retcode = SQLExecute(hstmt);
+    return true;
 }
 
 int ScheduleDataMapper::connectToDB() {

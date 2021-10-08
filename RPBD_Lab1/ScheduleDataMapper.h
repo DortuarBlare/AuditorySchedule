@@ -20,6 +20,8 @@ public:
     ScheduleDataMapper();
     ~ScheduleDataMapper();
 
+    bool insert(Schedule schedule);
+
     int connectToDB();
     int disconnectFromDB();
 };

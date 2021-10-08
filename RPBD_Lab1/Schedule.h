@@ -12,12 +12,15 @@ private:
 	string time; // Часы занятости аудитории
 
 public:
-	Schedule(int id, int classroomNumber, string group, int week, string day, string time);
+	Schedule();
+	Schedule(int id, int audNum, string group, int week, string day, string time);
 	Schedule(const Schedule& forCopy);
 
 	void print();
 	bool operator==(Schedule& forComparison);
 	bool operator!=(Schedule& forComparison);
+	friend ostream& operator<<(ostream& os, Schedule& outputSchedule);
+	friend istream& operator>>(istream& is, Schedule& inputSchedule);
 
 	void setId(int id);
 	int getId();

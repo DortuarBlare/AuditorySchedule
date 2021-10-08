@@ -1,8 +1,17 @@
 #include "Schedule.h"
 
-Schedule::Schedule(int id, int classroomNumber, string group, int week, string day, string time) {
+Schedule::Schedule() {
+	this->id = -1;
+	this->audNum = -1;
+	this->week = -1;
+	this->group = "...";
+	this->day = "...";
+	this->time = "...";
+}
+
+Schedule::Schedule(int id, int audNum, string group, int week, string day, string time) {
 	this->id = id;
-	this->audNum = classroomNumber;
+	this->audNum = audNum;
 	this->group = group;
 	this->week = week;
 	this->day = day;
@@ -43,6 +52,25 @@ bool Schedule::operator!=(Schedule& forComparison) {
 		this->week != forComparison.week &&
 		this->day != forComparison.day &&
 		this->time != forComparison.time;
+}
+
+ostream& operator<<(ostream& os, Schedule& outputSchedule) {
+	os << "AudNum: " << outputSchedule.audNum << endl;
+	os << "Group: \t" << outputSchedule.group << endl;
+	os << "Week: \t" << outputSchedule.week << endl;
+	os << "Day: \t" << outputSchedule.day << endl;
+	os << "Time: \t" << outputSchedule.time << endl;
+	return os;
+}
+
+istream& operator>>(istream& is, Schedule& inputSchedule) {
+	is >> inputSchedule.id;
+	is >> inputSchedule.audNum;
+	is >> inputSchedule.group;
+	is >> inputSchedule.week;
+	is >> inputSchedule.day;
+	is >> inputSchedule.time;
+	return is;
 }
 
 void Schedule::setId(int id) {
