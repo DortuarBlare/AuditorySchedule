@@ -21,6 +21,7 @@ public:
     ~ScheduleDataMapper();
 
     bool insert(Schedule schedule);
+    void createTables();
 
     int connectToDB();
     int disconnectFromDB();

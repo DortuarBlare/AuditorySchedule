@@ -5,7 +5,7 @@ using namespace std;
 class Schedule {
 private:
 	int id; // Идентификационный номер
-	int audNum; // Номер аудитории
+	int auditory; // Номер аудитории
 	int week; // Неделя занятости аудитории
 	string group; // Группа, которой занята аудитория
 	string day; // День занятости аудитории
@@ -24,8 +24,8 @@ public:
 
 	void setId(int id);
 	int getId();
-	void setClassroomNumber(int classroomNumber);
-	int getClassroomNumber();
+	void setAuditory(int classroomNumber);
+	int getAuditory();
 	void setWeek(int week);
 	int getWeek();
 	void setGroup(string group);

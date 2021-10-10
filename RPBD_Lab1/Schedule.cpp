@@ -2,16 +2,16 @@
 
 Schedule::Schedule() {
 	this->id = -1;
-	this->audNum = -1;
+	this->auditory = -1;
 	this->week = -1;
 	this->group = "...";
 	this->day = "...";
 	this->time = "...";
 }
 
-Schedule::Schedule(int id, int audNum, string group, int week, string day, string time) {
+Schedule::Schedule(int id, int auditory, string group, int week, string day, string time) {
 	this->id = id;
-	this->audNum = audNum;
+	this->auditory = auditory;
 	this->group = group;
 	this->week = week;
 	this->day = day;
@@ -20,7 +20,7 @@ Schedule::Schedule(int id, int audNum, string group, int week, string day, strin
 
 Schedule::Schedule(const Schedule& forCopy) {
 	this->id = forCopy.id;
-	this->audNum = forCopy.audNum;
+	this->auditory = forCopy.auditory;
 	this->group = forCopy.group;
 	this->week = forCopy.week;
 	this->day = forCopy.day;
@@ -28,17 +28,17 @@ Schedule::Schedule(const Schedule& forCopy) {
 }
 
 void Schedule::print() {
-	cout << "ID: \t" << this->id << endl;
-	cout << "AudNum: \t" << this->audNum << endl;
-	cout << "Group: \t" << this->group << endl;
-	cout << "Week: \t" << this->week << endl;
-	cout << "Day: \t" << this->day << endl;
-	cout << "Time: \t" << this->time << endl;
+	cout << "ID:\t" << this->id << endl;
+	cout << "Auditory:\t\t" << this->auditory << endl;
+	cout << "Group:\t\t" << this->group << endl;
+	cout << "Week:\t\t" << this->week << endl;
+	cout << "Day:\t\t" << this->day << endl;
+	cout << "Time:\t\t" << this->time << endl;
 }
 
 bool Schedule::operator==(Schedule& forComparison) {
 	return
-		this->audNum == forComparison.audNum &&
+		this->auditory == forComparison.auditory &&
 		this->group == forComparison.group &&
 		this->week == forComparison.week &&
 		this->day == forComparison.day &&
@@ -47,7 +47,7 @@ bool Schedule::operator==(Schedule& forComparison) {
 
 bool Schedule::operator!=(Schedule& forComparison) {
 	return
-		this->audNum != forComparison.audNum &&
+		this->auditory != forComparison.auditory &&
 		this->group != forComparison.group &&
 		this->week != forComparison.week &&
 		this->day != forComparison.day &&
@@ -55,17 +55,17 @@ bool Schedule::operator!=(Schedule& forComparison) {
 }
 
 ostream& operator<<(ostream& os, Schedule& outputSchedule) {
-	os << "AudNum: " << outputSchedule.audNum << endl;
-	os << "Group: \t" << outputSchedule.group << endl;
-	os << "Week: \t" << outputSchedule.week << endl;
-	os << "Day: \t" << outputSchedule.day << endl;
-	os << "Time: \t" << outputSchedule.time << endl;
+	os << "Auditory:\t" << outputSchedule.auditory << endl;
+	os << "Group:\t\t" << outputSchedule.group << endl;
+	os << "Week:\t\t" << outputSchedule.week << endl;
+	os << "Day:\t\t" << outputSchedule.day << endl;
+	os << "Time:\t\t" << outputSchedule.time << endl;
 	return os;
 }
 
 istream& operator>>(istream& is, Schedule& inputSchedule) {
 	is >> inputSchedule.id;
-	is >> inputSchedule.audNum;
+	is >> inputSchedule.auditory;
 	is >> inputSchedule.group;
 	is >> inputSchedule.week;
 	is >> inputSchedule.day;
@@ -81,12 +81,12 @@ int Schedule::getId() {
 	return this->id;
 }
 
-void Schedule::setClassroomNumber(int classroomNumber) {
-	this->audNum = classroomNumber;
+void Schedule::setAuditory(int classroomNumber) {
+	this->auditory = classroomNumber;
 }
 
-int Schedule::getClassroomNumber() {
-	return this->audNum;
+int Schedule::getAuditory() {
+	return this->auditory;
 }
 
 void Schedule::setWeek(int week) {
