@@ -13,7 +13,8 @@ private:
 
 public:
 	Schedule();
-	Schedule(int id, int audNum, string group, int week, string day, string time);
+	Schedule(int id, int auditory, string group, int week, string day, string time);
+	Schedule(int auditory, string group, int week, string day, string time);
 	Schedule(const Schedule& forCopy);
 
 	void print();
@@ -24,8 +25,8 @@ public:
 
 	void setId(int id);
 	int getId();
-	void setAuditory(int classroomNumber);
-	int getAuditory();
+	void setAuditoryNumber(int classroomNumber);
+	int getAuditoryNumber();
 	void setWeek(int week);
 	int getWeek();
 	void setGroup(string group);

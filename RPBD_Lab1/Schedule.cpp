@@ -18,6 +18,15 @@ Schedule::Schedule(int id, int auditory, string group, int week, string day, str
 	this->time = time;
 }
 
+Schedule::Schedule(int auditory, string group, int week, string day, string time) {
+	this->id = -1;
+	this->auditory = auditory;
+	this->group = group;
+	this->week = week;
+	this->day = day;
+	this->time = time;
+}
+
 Schedule::Schedule(const Schedule& forCopy) {
 	this->id = forCopy.id;
 	this->auditory = forCopy.auditory;
@@ -81,11 +90,11 @@ int Schedule::getId() {
 	return this->id;
 }
 
-void Schedule::setAuditory(int classroomNumber) {
+void Schedule::setAuditoryNumber(int classroomNumber) {
 	this->auditory = classroomNumber;
 }
 
-int Schedule::getAuditory() {
+int Schedule::getAuditoryNumber() {
 	return this->auditory;
 }
 

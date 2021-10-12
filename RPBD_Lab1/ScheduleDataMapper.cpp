@@ -1,7 +1,8 @@
 #include "ScheduleDataMapper.h"
 
 ScheduleDataMapper::ScheduleDataMapper() {
-    cout << connectToDB() << endl;
+    if (connectToDB() == 1)
+        createTables();
 }
 
 ScheduleDataMapper::~ScheduleDataMapper() {
@@ -11,19 +12,19 @@ ScheduleDataMapper::~ScheduleDataMapper() {
 }
 
 bool ScheduleDataMapper::insert(Schedule schedule) {
-    SQLINTEGER id = schedule.getId();
-    SQLINTEGER auditory = schedule.getAuditory();
+    //SQLINTEGER id = schedule.getId();
+    SQLINTEGER auditory = schedule.getAuditoryNumber();
     SQLINTEGER week = schedule.getWeek();
     SQLWCHAR group[20];
     SQLWCHAR day[20];
     SQLWCHAR time[20];
-    SQLINTEGER testNumber = -1;
+    //SQLINTEGER testNumber = -1;
 
     strcpy_s((char*)group, strlen(schedule.getGroup().c_str()) + 1, schedule.getGroup().c_str());
     strcpy_s((char*)day, strlen(schedule.getDay().c_str()) + 1, schedule.getDay().c_str());
     strcpy_s((char*)time, strlen(schedule.getTime().c_str()) + 1, schedule.getTime().c_str());
 
-    retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &id, 0, NULL);
+    /*retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &id, 0, NULL);
     retcode = SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &auditory, 0, NULL);
     retcode = SQLBindParameter(hstmt, 3, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, group, 0, NULL);
     retcode = SQLBindParameter(hstmt, 4, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &week, 0, NULL);
@@ -33,10 +34,17 @@ bool ScheduleDataMapper::insert(Schedule schedule) {
     retcode = SQLBindParameter(hstmt, 8, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &testNumber, 0, NULL);
     retcode = SQLBindParameter(hstmt, 9, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &testNumber, 0, NULL);
     retcode = SQLBindParameter(hstmt, 10, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &testNumber, 0, NULL);
-    retcode = SQLBindParameter(hstmt, 11, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &testNumber, 0, NULL);
+    retcode = SQLBindParameter(hstmt, 11, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &testNumber, 0, NULL);*/
+
+    retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &auditory, 0, NULL);
+    retcode = SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, group, 0, NULL);
+    retcode = SQLBindParameter(hstmt, 3, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &week, 0, NULL);
+    retcode = SQLBindParameter(hstmt, 4, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, day, 0, NULL);
+    retcode = SQLBindParameter(hstmt, 5, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, time, 0, NULL);
 
     retcode = SQLPrepare(hstmt,
-        (SQLWCHAR*)L"INSERT INTO schedule VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", SQL_NTS);
+        (SQLWCHAR*)L"INSERT INTO schedule(auditory, group_, week, day, time)"
+        "VALUES (?, ?, ?, ?, ?);", SQL_NTS);
     retcode = SQLExecute(hstmt);
     retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
 
@@ -46,7 +54,7 @@ bool ScheduleDataMapper::insert(Schedule schedule) {
 void ScheduleDataMapper::createTables() {
     retcode = SQLPrepare(hstmt,
         (SQLWCHAR*)L"create table if not exists schedule ("
-                    "id int,"
+                    "id serial primary key,"
                     "auditory int,"
                     "group_ varchar(15),"
                     "week int,"
@@ -64,7 +72,7 @@ void ScheduleDataMapper::createTables() {
 
     retcode = SQLPrepare(hstmt,
         (SQLWCHAR*)L"create table if not exists auditory ("
-                    "id int,"
+                    "id serial primary key,"
                     "auditory int"
                     "); ", SQL_NTS);
     retcode = SQLExecute(hstmt);
@@ -73,7 +81,7 @@ void ScheduleDataMapper::createTables() {
 
     retcode = SQLPrepare(hstmt,
         (SQLWCHAR*)L"create table if not exists group_ ("
-                    "id int,"
+                    "id serial primary key,"
                     "group_ varchar(15)"
                     "); ", SQL_NTS);
     retcode = SQLExecute(hstmt);
@@ -82,7 +90,7 @@ void ScheduleDataMapper::createTables() {
 
     retcode = SQLPrepare(hstmt,
         (SQLWCHAR*)L"create table if not exists week ("
-                    "id int,"
+                    "id serial primary key,"
                     "week int"
                     "); ", SQL_NTS);
     retcode = SQLExecute(hstmt);
@@ -91,7 +99,7 @@ void ScheduleDataMapper::createTables() {
 
     retcode = SQLPrepare(hstmt,
         (SQLWCHAR*)L"create table if not exists day ("
-                    "id int,"
+                    "id serial primary key,"
                     "day varchar(10)"
                     "); ", SQL_NTS);
     retcode = SQLExecute(hstmt);
@@ -100,9 +108,45 @@ void ScheduleDataMapper::createTables() {
 
     retcode = SQLPrepare(hstmt,
         (SQLWCHAR*)L"create table if not exists time ("
-                    "id int,"
+                    "id serial primary key,"
                     "time varchar(15)"
                     "); ", SQL_NTS);
+    retcode = SQLExecute(hstmt);
+    retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
+
+    // Связываем PrimaryKey с id
+    retcode = SQLPrepare(hstmt,
+        (SQLWCHAR*)L"alter table schedule add constraint auditory_pkey foreign key(id_Auditory) "
+        "references auditory(id) on update cascade on delete cascade;"
+        , SQL_NTS);
+    retcode = SQLExecute(hstmt);
+    retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
+
+    retcode = SQLPrepare(hstmt,
+        (SQLWCHAR*)L"alter table schedule add constraint group_pkey foreign key(id_Group) "
+        "references group_(id) on update cascade on delete cascade;"
+        , SQL_NTS);
+    retcode = SQLExecute(hstmt);
+    retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
+
+    retcode = SQLPrepare(hstmt,
+        (SQLWCHAR*)L"alter table schedule add constraint week_pkey foreign key(id_Week) "
+        "references week(id) on update cascade on delete cascade;"
+        , SQL_NTS);
+    retcode = SQLExecute(hstmt);
+    retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
+
+    retcode = SQLPrepare(hstmt,
+        (SQLWCHAR*)L"alter table schedule add constraint day_pkey foreign key(id_Day) "
+        "references day(id) on update cascade on delete cascade;"
+        , SQL_NTS);
+    retcode = SQLExecute(hstmt);
+    retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
+
+    retcode = SQLPrepare(hstmt,
+        (SQLWCHAR*)L"alter table schedule add constraint time_pkey foreign key(id_Time) "
+        "references time(id) on update cascade on delete cascade;"
+        , SQL_NTS);
     retcode = SQLExecute(hstmt);
     retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
 }
