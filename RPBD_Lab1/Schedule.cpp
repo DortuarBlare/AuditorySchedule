@@ -73,10 +73,19 @@ ostream& operator<<(ostream& os, Schedule& outputSchedule) {
 }
 
 istream& operator>>(istream& is, Schedule& inputSchedule) {
-	is >> inputSchedule.id;
 	is >> inputSchedule.auditory;
+	while (is.fail()) {
+		is.clear();
+		is.ignore(32767, '\n');
+		is >> inputSchedule.auditory;
+	}
 	is >> inputSchedule.group;
 	is >> inputSchedule.week;
+	while (is.fail()) {
+		is.clear();
+		is.ignore(32767, '\n');
+		is >> inputSchedule.week;
+	}
 	is >> inputSchedule.day;
 	is >> inputSchedule.time;
 	return is;

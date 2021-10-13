@@ -7,9 +7,35 @@
 using namespace std;
 
 int main() {
-    setlocale(LC_ALL, "Rus");
-    
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
     ScheduleDataMapper dataMapper;
-    //dataMapper.insert(Schedule(0, 303, "AVT-815", 5, "Monday", "18:00-19:30"));
-    dataMapper.insert(Schedule(404, "AVT-814", 5, "Tuesday", "12:00-13:30"));
+    Schedule tempSchedule;
+    int choice;
+
+    while (true) {
+        cout << "========================================" << endl;
+        cout << "= 1) Посмотреть      расписание        =" << endl;
+        cout << "= 2) Добавить        расписание        =" << endl;
+        cout << "= 3) Редактировать   расписание        =" << endl;
+        cout << "= 4) Удалить         расписание        =" << endl;
+        cout << "= 0) Выход                             =" << endl;
+        cout << "========================================" << endl;
+        cin >> choice;
+        switch (choice) {
+        case 1:
+            dataMapper.show();
+            break;
+        case 2:
+            cout << "Введите: \nНомер аудитории, группа, неделя, день, время" << endl;
+            cin >> tempSchedule;
+            if (dataMapper.insert(tempSchedule)) cout << "Вставка прошла успешно :)" << endl;
+            else cout << "Что-то пошло не так, проверьте правильность ввода" << endl;
+            break;
+        case 0:
+            return 0;
+        default:
+            break;
+        }
+    }
 }
