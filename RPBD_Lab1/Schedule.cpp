@@ -3,13 +3,13 @@
 Schedule::Schedule() {
 	this->id = -1;
 	this->auditory = -1;
-	this->week = -1;
+	this->week = "...";
 	this->group = "...";
 	this->day = "...";
 	this->time = "...";
 }
 
-Schedule::Schedule(int id, int auditory, string group, int week, string day, string time) {
+Schedule::Schedule(int id, int auditory, string group, string week, string day, string time) {
 	this->id = id;
 	this->auditory = auditory;
 	this->group = group;
@@ -18,7 +18,7 @@ Schedule::Schedule(int id, int auditory, string group, int week, string day, str
 	this->time = time;
 }
 
-Schedule::Schedule(int auditory, string group, int week, string day, string time) {
+Schedule::Schedule(int auditory, string group, string week, string day, string time) {
 	this->id = -1;
 	this->auditory = auditory;
 	this->group = group;
@@ -64,29 +64,29 @@ bool Schedule::operator!=(Schedule& forComparison) {
 }
 
 ostream& operator<<(ostream& os, Schedule& outputSchedule) {
-	os << "Auditory:\t" << outputSchedule.auditory << endl;
-	os << "Group:\t\t" << outputSchedule.group << endl;
-	os << "Week:\t\t" << outputSchedule.week << endl;
-	os << "Day:\t\t" << outputSchedule.day << endl;
-	os << "Time:\t\t" << outputSchedule.time << endl;
+	os << "Аудитория:\t" << outputSchedule.auditory << endl;
+	os << "Группа:\t\t" << outputSchedule.group << endl;
+	os << "Недели:\t\t" << outputSchedule.week << endl;
+	os << "День:\t\t" << outputSchedule.day << endl;
+	os << "Время:\t\t" << outputSchedule.time << endl;
 	return os;
 }
 
 istream& operator>>(istream& is, Schedule& inputSchedule) {
+	cout << "Аудитория: ";
 	is >> inputSchedule.auditory;
 	while (is.fail()) {
 		is.clear();
 		is.ignore(32767, '\n');
 		is >> inputSchedule.auditory;
 	}
+	cout << "Группа: ";
 	is >> inputSchedule.group;
+	cout << "Недели: ";
 	is >> inputSchedule.week;
-	while (is.fail()) {
-		is.clear();
-		is.ignore(32767, '\n');
-		is >> inputSchedule.week;
-	}
+	cout << "День: ";
 	is >> inputSchedule.day;
+	cout << "Время: ";
 	is >> inputSchedule.time;
 	return is;
 }
@@ -107,11 +107,11 @@ int Schedule::getAuditoryNumber() {
 	return this->auditory;
 }
 
-void Schedule::setWeek(int week) {
+void Schedule::setWeek(string week) {
 	this->week = week;
 }
 
-int Schedule::getWeek() {
+string Schedule::getWeek() {
 	return this->week;
 }
 

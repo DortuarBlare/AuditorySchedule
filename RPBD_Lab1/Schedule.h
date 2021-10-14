@@ -6,15 +6,15 @@ class Schedule {
 private:
 	int id; // Идентификационный номер
 	int auditory; // Номер аудитории
-	int week; // Неделя занятости аудитории
+	string week; // Неделя занятости аудитории
 	string group; // Группа, которой занята аудитория
 	string day; // День занятости аудитории
 	string time; // Часы занятости аудитории
 
 public:
 	Schedule();
-	Schedule(int id, int auditory, string group, int week, string day, string time);
-	Schedule(int auditory, string group, int week, string day, string time);
+	Schedule(int id, int auditory, string group, string week, string day, string time);
+	Schedule(int auditory, string group, string week, string day, string time);
 	Schedule(const Schedule& forCopy);
 
 	void print();
@@ -27,8 +27,8 @@ public:
 	int getId();
 	void setAuditoryNumber(int classroomNumber);
 	int getAuditoryNumber();
-	void setWeek(int week);
-	int getWeek();
+	void setWeek(string week);
+	string getWeek();
 	void setGroup(string group);
 	string getGroup();
 	void setDay(string day);

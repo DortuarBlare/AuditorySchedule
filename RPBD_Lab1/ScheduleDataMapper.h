@@ -21,7 +21,10 @@ public:
     ~ScheduleDataMapper();
 
     bool insert(Schedule schedule);
-    void show();
+    void showAll();
+    void showByGroup(string choice);
+    bool edit(int number, Schedule schedule);
+    bool remove(int number);
     void createTables();
 
     int connectToDB();
