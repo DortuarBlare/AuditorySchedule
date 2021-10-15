@@ -34,6 +34,18 @@ void printMenu() {
     cout << '|' << endl;
 
     cout << '|';
+    for (int i = 0; i <= 36; i++) cout << ' ';
+    cout << "5) Поиск свободной аудитории в заданные часы";
+    for (int i = 0; i <= 36; i++) cout << ' ';
+    cout << '|' << endl;
+
+    cout << '|';
+    for (int i = 0; i <= 23; i++) cout << ' ';
+    cout << "6) Поиск свободной аудитории на заданное число часов в указанную неделю";
+    for (int i = 0; i <= 22; i++) cout << ' ';
+    cout << '|' << endl;
+
+    cout << '|';
     for (int i = 0; i <= 54; i++) cout << ' ';
     cout << "0) Выход";
     for (int i = 0; i <= 54; i++) cout << ' ';
@@ -49,7 +61,6 @@ int main() {
     Schedule tempSchedule;
     string stringChoice;
     int choice;
-    int anotherChoice;
 
     while (true) {
         printMenu();
@@ -57,9 +68,9 @@ int main() {
         switch (choice) {
         case 1:
             cout << "Посмотреть всё(1) или по группе(2)?" << endl;
-            cin >> anotherChoice;
+            cin >> choice;
             cout << endl;
-            if (anotherChoice == 1) dataMapper.showAll();
+            if (choice == 1) dataMapper.showAll();
             else {
                 cout << "Введите группу: ";
                 cin >> stringChoice;
@@ -74,16 +85,24 @@ int main() {
             break;
         case 3:
             cout << "Введите порядковый номер расписания: ";
-            cin >> anotherChoice;
+            cin >> choice;
             cin >> tempSchedule;
-            if (dataMapper.edit(anotherChoice, tempSchedule)) cout << "Редактирование прошло успешно :)" << endl;
+            if (dataMapper.edit(choice, tempSchedule)) cout << "Редактирование прошло успешно :)" << endl;
             else cout << "Что-то пошло не так, проверьте правильность ввода данных :(" << endl;
             break;
         case 4:
             cout << "Введите порядковый номер расписания: ";
-            cin >> anotherChoice;
-            if (dataMapper.remove(anotherChoice)) cout << "Удаление прошло успешно :)" << endl;
+            cin >> choice;
+            if (dataMapper.remove(choice)) cout << "Удаление прошло успешно :)" << endl;
             else cout << "Что-то пошло не так, проверьте правильность ввода данных :(" << endl;
+            break;
+        case 5:
+            cout << "Введите номер аудитории: ";
+            cin >> choice;
+            cout << "Введите время: ";
+            cin >> stringChoice;
+            cout << endl;
+            dataMapper.findFreeAuditoryByHours(choice, stringChoice);
             break;
         case 0:
             return 0;
