@@ -89,6 +89,27 @@ istream& operator>>(istream& is, Schedule& inputSchedule) {
 	cout << "Время: ";
 	is >> inputSchedule.time;
 	return is;
+	
+	/*cout << "Аудитория: ";
+	is >> inputSchedule.auditory;
+	while (is.fail()) {
+		is.clear();
+		is.ignore(32767, '\n');
+		is >> inputSchedule.auditory;
+	}
+	cout << "Группа: ";
+	is.ignore();
+	getline(is, inputSchedule.group);
+	cout << "Недели: ";
+	is.ignore();
+	getline(is, inputSchedule.week);
+	cout << "День: ";
+	is.ignore();
+	getline(is, inputSchedule.day);
+	cout << "Время: ";
+	is.ignore();
+	getline(is, inputSchedule.time);
+	return is;*/
 }
 
 void Schedule::setId(int id) {
