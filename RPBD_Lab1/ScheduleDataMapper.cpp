@@ -189,51 +189,8 @@ void ScheduleDataMapper::showByGroup(string choice) {
 }
 
 bool ScheduleDataMapper::edit(int number, Schedule schedule) {
-    int id = 0;
-    vector<int> idList;
-
-    retcode = SQLExecDirect(hstmt, (SQLWCHAR*)L"select id from schedule order by id;", SQL_NTS);
-    retcode = SQLBindCol(hstmt, 1, SQL_C_SLONG, &id, sizeof(id), NULL);
-
-    for (int i = 0; ; i++) {
-        retcode = SQLFetch(hstmt);
-        if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
-            cout << "Error" << endl;
-        if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) 
-            idList.push_back(id);
-        else break;
-    }
-    retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
-
-
-    SQLINTEGER auditory = schedule.getAuditoryNumber();
-    SQLWCHAR week[20];
-    SQLWCHAR group[20];
-    SQLWCHAR day[20];
-    SQLWCHAR time[20];
-    SQLINTEGER editNumber = idList[number - 1];
-    idList.clear();
-    idList.shrink_to_fit();
-
-    strcpy_s((char*)week, strlen(schedule.getWeek().c_str()) + 1, schedule.getWeek().c_str());
-    strcpy_s((char*)group, strlen(schedule.getGroup().c_str()) + 1, schedule.getGroup().c_str());
-    strcpy_s((char*)day, strlen(schedule.getDay().c_str()) + 1, schedule.getDay().c_str());
-    strcpy_s((char*)time, strlen(schedule.getTime().c_str()) + 1, schedule.getTime().c_str());
-
-    retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &auditory, 0, NULL);
-    retcode = SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, group, 0, NULL);
-    retcode = SQLBindParameter(hstmt, 3, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, week, 0, NULL);
-    retcode = SQLBindParameter(hstmt, 4, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, day, 0, NULL);
-    retcode = SQLBindParameter(hstmt, 5, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, time, 0, NULL);
-    retcode = SQLBindParameter(hstmt, 6, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &editNumber, 0, NULL);
-    
-    retcode = SQLPrepare(hstmt,
-        (SQLWCHAR*)L"UPDATE schedule SET auditory = ?, group_ = ?, week = ?, day = ?, time = ? "
-        "WHERE id = ?;", SQL_NTS);
-    retcode = SQLExecute(hstmt);
-    if (retcode < 0) return false;
-    retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
-
+    remove(number);
+    insert(schedule);
     return true;
 }
 
@@ -379,8 +336,6 @@ void ScheduleDataMapper::findFreeAuditoryByNumberOfHours(int auditoryChoice, int
     double amountOfClasses = ceil(double(numberOfHoursChoice * 60) / 90);
     double amountOfClassesOnEachDay = 0;
     double temp = ceil(double(amountOfClasses) / 7);
-    cout << "amountOfClasses: " << amountOfClasses << endl;
-    cout << "amountOfClassesOnEachDay: " << temp << endl;
 
     for (int i = 0; i < 7; i++) {
         daysAndTime.push_back(vector<string>());
