@@ -7,8 +7,8 @@ ScheduleDataMapper::ScheduleDataMapper() {
 
 ScheduleDataMapper::~ScheduleDataMapper() {
     disconnectFromDB();
-    this->scheduleVector.clear();
-    this->scheduleVector.shrink_to_fit();
+    //this->scheduleVector.clear();
+    //this->scheduleVector.shrink_to_fit();
 }
 
 bool ScheduleDataMapper::insert(Schedule schedule) {
@@ -254,6 +254,9 @@ bool ScheduleDataMapper::remove(int number) {
     }
     retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
 
+    if (number < 1 || number > idList.size())
+        return false;
+
     SQLINTEGER removeNumber = idList[number - 1];
     idList.clear();
     idList.shrink_to_fit();
@@ -268,14 +271,14 @@ bool ScheduleDataMapper::remove(int number) {
     return true;
 }
 
-void ScheduleDataMapper::findFreeAuditoryByHours(int auditoryChoice, string timeChoice) {
-    SQLINTEGER auditory_ = auditoryChoice;
-    SQLWCHAR time_[20];
+void ScheduleDataMapper::findFreeAuditoryByTime(int auditoryChoice, string timeChoice) {
+    SQLINTEGER auditory = auditoryChoice;
+    SQLWCHAR time[20];
     char week[20] = "";
     char day[20] = "";
     vector<vector<string>> weeksAndDays;
 
-    strcpy_s((char*)time_, strlen(timeChoice.c_str()) + 1, timeChoice.c_str());
+    strcpy_s((char*)time, strlen(timeChoice.c_str()) + 1, timeChoice.c_str());
 
     for (int i = 0; i < 18; i++) {
         weeksAndDays.push_back(vector<string>());
@@ -288,10 +291,10 @@ void ScheduleDataMapper::findFreeAuditoryByHours(int auditoryChoice, string time
         weeksAndDays[i].push_back("Воскресенье");
     }
 
-    retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &auditory_, 0, NULL);
-    retcode = SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, time_, 0, NULL);
+    retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &auditory, 0, NULL);
+    retcode = SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, time, 0, NULL);
     retcode = SQLExecDirect(hstmt,
-        (SQLWCHAR*)L"select week, day from schedule where auditory = ? and time = ?; ", SQL_NTS);
+        (SQLWCHAR*)L"select week, day, time from schedule where auditory = ? and time = ?; ", SQL_NTS);
     retcode = SQLBindCol(hstmt, 1, SQL_C_CHAR, week, 20, NULL);
     retcode = SQLBindCol(hstmt, 2, SQL_C_CHAR, day, 20, NULL);
 
@@ -358,13 +361,132 @@ void ScheduleDataMapper::findFreeAuditoryByHours(int auditoryChoice, string time
         if (i < 9) cout << ' ';
         cout << i + 1 << " неделя:\t ";
         for (int j = 0; j < weeksAndDays[i].size(); j++)
-            cout << weeksAndDays[i][j] << ' ';
+            cout << weeksAndDays[i][j] << ", ";
         cout << endl;
     }
     cout << endl;
     
     weeksAndDays.clear();
     weeksAndDays.shrink_to_fit();
+}
+
+void ScheduleDataMapper::findFreeAuditoryByNumberOfHours(int auditoryChoice, int numberOfHoursChoice, int weekNumber) {
+    SQLINTEGER auditory = auditoryChoice;
+    char week[20] = "";
+    char day[20] = "";
+    char time[20] = "";
+    vector<vector<string>> daysAndTime;
+    double amountOfClasses = ceil(double(numberOfHoursChoice * 60) / 90);
+    double amountOfClassesOnEachDay = 0;
+    double temp = ceil(double(amountOfClasses) / 7);
+    cout << "amountOfClasses: " << amountOfClasses << endl;
+    cout << "amountOfClassesOnEachDay: " << temp << endl;
+
+    for (int i = 0; i < 7; i++) {
+        daysAndTime.push_back(vector<string>());
+        daysAndTime[i].push_back("8:30-10:00");
+        daysAndTime[i].push_back("10:15-11:45");
+        daysAndTime[i].push_back("12:00-13:30");
+        daysAndTime[i].push_back("14:00-15:30");
+        daysAndTime[i].push_back("15:45-17:15");
+        daysAndTime[i].push_back("17:30-19:00");
+        daysAndTime[i].push_back("19:15-20:45");
+    }
+
+    retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &auditory, 0, NULL);
+    retcode = SQLExecDirect(hstmt,
+        (SQLWCHAR*)L"select week, day, time from schedule where auditory = ?; ", SQL_NTS);
+    retcode = SQLBindCol(hstmt, 1, SQL_C_CHAR, week, 20, NULL);
+    retcode = SQLBindCol(hstmt, 2, SQL_C_CHAR, day, 20, NULL);
+    retcode = SQLBindCol(hstmt, 3, SQL_C_CHAR, time, 20, NULL);
+
+    for (int i = 0; ; i++) {
+        retcode = SQLFetch(hstmt);
+        if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
+            cout << "Error" << endl;
+        if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+            if (string(week) == "Четные" || string(week) == "Ч") {
+                int dayIndex = dayToIndex(string(day));
+                for (int j = 1; j < 18; j += 2) {
+                    auto iterator = daysAndTime[dayIndex].cbegin();
+                    for (int k = 0; k < daysAndTime[dayIndex].size(); k++) {
+                        if (daysAndTime[dayIndex][k] == string(time) && j + 1 == weekNumber) {
+                            daysAndTime[dayIndex].erase(iterator + k);
+                            break;
+                        }
+                    }
+                }
+            }
+            else if (string(week) == "Нечетные" || string(week) == "Н") {
+                int dayIndex = dayToIndex(string(day));
+                for (int j = 0; j < 18; j += 2) {
+                    auto iterator = daysAndTime[dayIndex].cbegin();
+                    for (int k = 0; k < daysAndTime[dayIndex].size(); k++) {
+                        if (daysAndTime[dayIndex][k] == string(time) && j + 1 == weekNumber) {
+                            daysAndTime[dayIndex].erase(iterator + k);
+                            break;
+                        }
+                    }
+                }
+            }
+            else {
+                string tempNumber = "";
+                int tempWeekNumber, dayIndex;
+                for (int j = 0; j < 20; j++) {
+                    if (week[j] != ' ' && week[j] != '-' && week[j] != '\0')
+                        tempNumber += week[j];
+                    else {
+                        tempWeekNumber = atoi(tempNumber.c_str());
+                        dayIndex = dayToIndex(string(day));
+
+                        if (tempWeekNumber > 0 && tempWeekNumber <= 18) {
+                            auto iterator = daysAndTime[dayIndex].cbegin();
+                            for (int k = 0; k < daysAndTime[dayIndex].size(); k++) {
+                                if (daysAndTime[dayIndex][k] == string(time) && tempWeekNumber == weekNumber) {
+                                    daysAndTime[dayIndex].erase(iterator + k);
+                                    break;
+                                }
+                            }
+                        }
+                        tempNumber = "";
+                    }
+                }
+            }
+
+            for (int j = 0; j < 20; j++) {
+                week[i] = ' ';
+                day[i] = ' ';
+                time[i] = ' ';
+            }
+        }
+        else break;
+    }
+    retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
+
+    cout << endl << "На " << weekNumber << " неделе " << auditoryChoice << " аудитория свободна:" << endl;
+    for (int i = 0; i < 7; i++) {
+        amountOfClassesOnEachDay = amountOfClassesOnEachDay == 0 ? temp : temp + amountOfClassesOnEachDay;
+        if (i == 0)      cout << "Понедельник:\t ";
+        else if (i == 1) cout << "    Вторник:\t ";
+        else if (i == 2) cout << "      Среда:\t ";
+        else if (i == 3) cout << "    Четверг:\t ";
+        else if (i == 4) cout << "    Пятница:\t ";
+        else if (i == 5) cout << "    Суббота:\t ";
+        else if (i == 6) cout << "Воскресенье:\t ";
+        for (int j = 0; j < daysAndTime[i].size(); j++) {
+            cout << daysAndTime[i][j];
+            amountOfClasses--;
+            amountOfClassesOnEachDay--;
+            if (amountOfClasses == 0 || amountOfClassesOnEachDay == 0) break;
+            cout << ", ";
+        }
+        cout << endl;
+        if (amountOfClasses == 0) break;
+    }
+    cout << endl;
+
+    daysAndTime.clear();
+    daysAndTime.shrink_to_fit();
 }
 
 void ScheduleDataMapper::createTables() {
@@ -463,4 +585,15 @@ int ScheduleDataMapper::disconnectFromDB() {
     if (retcode < 0) return -24;
 
     return 2;
+}
+
+int ScheduleDataMapper::dayToIndex(string day) {
+    if (day == "Понедельник") return 0;
+    else if (day == "Вторник") return 1;
+    else if (day == "Среда") return 2;
+    else if (day == "Четверг") return 3;
+    else if (day == "Пятница") return 4;
+    else if (day == "Суббота") return 5;
+    else if (day == "Воскресенье") return 6;
+    return 0;
 }

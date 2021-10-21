@@ -52,6 +52,7 @@ void printMenu() {
     cout << '|' << endl;
 
     for (int i = 0; i < 120; i++) cout << '=';
+    cout << endl;
 }
 
 int main() {
@@ -102,7 +103,17 @@ int main() {
             cout << "Введите время: ";
             cin >> stringChoice;
             cout << endl;
-            dataMapper.findFreeAuditoryByHours(choice, stringChoice);
+            dataMapper.findFreeAuditoryByTime(choice, stringChoice);
+            break;
+        case 6:
+            int amountOfHours, weekNumber;
+            cout << "Введите номер аудитории: ";
+            cin >> choice;
+            cout << "Введите количество часов: ";
+            cin >> amountOfHours;
+            cout << "Введите номер недели: ";
+            cin >> weekNumber;
+            dataMapper.findFreeAuditoryByNumberOfHours(choice, amountOfHours, weekNumber);
             break;
         case 0:
             return 0;
