@@ -13,56 +13,86 @@ ScheduleDataMapper::~ScheduleDataMapper() {
 
 bool ScheduleDataMapper::insert(Schedule schedule) {
     SQLINTEGER auditory = schedule.getAuditoryNumber();
-    SQLWCHAR week[20];
+    SQLINTEGER week[20];
     SQLWCHAR group[20];
     SQLWCHAR day[20];
-    SQLWCHAR time[20];
+    SQLWCHAR startTime[20];
+    SQLWCHAR endTime[20];
+    string _startTime, _endTime;
+    bool foundStartTime = false;
 
-    strcpy_s((char*)week, strlen(schedule.getWeek().c_str()) + 1, schedule.getWeek().c_str());
     strcpy_s((char*)group, strlen(schedule.getGroup().c_str()) + 1, schedule.getGroup().c_str());
     strcpy_s((char*)day, strlen(schedule.getDay().c_str()) + 1, schedule.getDay().c_str());
-    strcpy_s((char*)time, strlen(schedule.getTime().c_str()) + 1, schedule.getTime().c_str());
+
+    for (int i = 0; i < schedule.getTime().length(); i++) {
+        if (!foundStartTime && schedule.getTime()[i] != ' ' &&
+            schedule.getTime()[i] != '-' && schedule.getTime()[i] != '\0') {
+            _startTime += schedule.getTime()[i];
+            if (schedule.getTime()[i + 1] != ' ' &&
+                schedule.getTime()[i + 1] != '-' && schedule.getTime()[i + 1] != '\0')
+                foundStartTime = true;
+        }
+        else if (schedule.getTime()[i] != ' ' &&
+            schedule.getTime()[i] != '-' && schedule.getTime()[i] != '\0') {
+            _endTime += schedule.getTime()[i];
+        }
+        else break;
+    }
+
+    strcpy_s((char*)startTime, strlen(_startTime.c_str()) + 1, _startTime.c_str());
+    strcpy_s((char*)endTime, strlen(_endTime.c_str()) + 1, _endTime.c_str());
+
+    int amountOfWeeks = 0;
+    string temp;
+    for (int i = 0, j = 0; i < schedule.getWeek().size(); i++) {
+        if (schedule.getWeek()[i] != ' ' &&
+            schedule.getWeek()[i] != '-' && schedule.getWeek()[i] != '\0')
+            temp += schedule.getWeek()[i];
+        else {
+            week[j++] = atoi(temp.c_str());
+            temp.clear();
+        }
+
+        if (i == schedule.getWeek().size() - 1 && !temp.empty()) {
+            week[amountOfWeeks++] = atoi(temp.c_str());
+            temp.clear();
+        }
+    }
 
     retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &auditory, 0, NULL);
-    retcode = SQLPrepare(hstmt,
-        (SQLWCHAR*)L"INSERT INTO auditory(auditory)"
-        "VALUES (?);", SQL_NTS);
+    retcode = SQLPrepare(hstmt, (SQLWCHAR*)L"INSERT INTO auditory(auditory) VALUES (?);", SQL_NTS);
     retcode = SQLExecute(hstmt);
     retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
 
     retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, group, 0, NULL);
-    retcode = SQLPrepare(hstmt,
-        (SQLWCHAR*)L"INSERT INTO group_(group_)"
-        "VALUES (?);", SQL_NTS);
+    retcode = SQLPrepare(hstmt, (SQLWCHAR*)L"INSERT INTO group_(group_) VALUES (?);", SQL_NTS);
     retcode = SQLExecute(hstmt);
     retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
 
-    retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, week, 0, NULL);
-    retcode = SQLPrepare(hstmt,
-        (SQLWCHAR*)L"INSERT INTO week(week)"
-        "VALUES (?);", SQL_NTS);
-    retcode = SQLExecute(hstmt);
-    retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
+    for (int i = 0; i < amountOfWeeks; i++) {
+        retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &week[i], 0, NULL);
+        retcode = SQLPrepare(hstmt, (SQLWCHAR*)L"INSERT INTO week(week) VALUES (?);", SQL_NTS);
+        retcode = SQLExecute(hstmt);
+        retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
+    }
 
     retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, day, 0, NULL);
-    retcode = SQLPrepare(hstmt,
-        (SQLWCHAR*)L"INSERT INTO day(day)"
-        "VALUES (?);", SQL_NTS);
+    retcode = SQLPrepare(hstmt, (SQLWCHAR*)L"INSERT INTO day(day) VALUES (?);", SQL_NTS);
     retcode = SQLExecute(hstmt);
     retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
 
-    retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, time, 0, NULL);
+    retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, startTime, 0, NULL);
+    retcode = SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, endTime, 0, NULL);
     retcode = SQLPrepare(hstmt,
-        (SQLWCHAR*)L"INSERT INTO time(time)"
-        "VALUES (?);", SQL_NTS);
+        (SQLWCHAR*)L"INSERT INTO time(start_time, end_time) VALUES (?, ?);", SQL_NTS);
     retcode = SQLExecute(hstmt);
     retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
 
-    retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &auditory, 0, NULL);
+    /*retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &auditory, 0, NULL);
     retcode = SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, group, 0, NULL);
     retcode = SQLBindParameter(hstmt, 3, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, week, 0, NULL);
     retcode = SQLBindParameter(hstmt, 4, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, day, 0, NULL);
-    retcode = SQLBindParameter(hstmt, 5, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, time, 0, NULL);
+    retcode = SQLBindParameter(hstmt, 5, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, time, 0, NULL);*/
 
     retcode = SQLPrepare(hstmt,
         (SQLWCHAR*)L"INSERT INTO schedule(auditory, group_, week, day, time)"
@@ -73,6 +103,34 @@ bool ScheduleDataMapper::insert(Schedule schedule) {
 
     return true;
 }
+
+//void ScheduleDataMapper::weekInsert(string weeks) {
+//    SQLINTEGER week[20];
+//
+//    string temp;
+//    int amountOfWeeks = 0;
+//    for (int i = 0; i < weeks.size(); i++) {
+//        if (weeks[i] != ' ' &&
+//            weeks[i] != '-' && weeks[i] != '\0')
+//            temp += weeks[i];
+//        else {
+//            week[amountOfWeeks++] = atoi(temp.c_str());
+//            temp.clear();
+//        }
+//
+//        if (i == weeks.size() - 1 && !temp.empty()) {
+//            week[amountOfWeeks++] = atoi(temp.c_str());
+//            temp.clear();
+//        }
+//    }
+//
+//    for (int i = 0; i < amountOfWeeks; i++) {
+//        retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &week[i], 0, NULL);
+//        retcode = SQLPrepare(hstmt, (SQLWCHAR*)L"INSERT INTO week(week) VALUES (?);", SQL_NTS);
+//        retcode = SQLExecute(hstmt);
+//        retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
+//    }
+//}
 
 void ScheduleDataMapper::showAll() {
     int auditory = 0;
@@ -466,7 +524,7 @@ void ScheduleDataMapper::createTables() {
     retcode = SQLPrepare(hstmt,
         (SQLWCHAR*)L"create table if not exists week ("
                     "id serial primary key,"
-                    "week varchar(15) unique"
+                    "week int unique"
                     "); ", SQL_NTS);
     retcode = SQLExecute(hstmt);
     retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
@@ -484,7 +542,9 @@ void ScheduleDataMapper::createTables() {
     retcode = SQLPrepare(hstmt,
         (SQLWCHAR*)L"create table if not exists time ("
                     "id serial primary key,"
-                    "time varchar(15) unique"
+                    "start_time time,"
+                    "end_time time,"
+                    "unique(start_time, end_time)"
                     "); ", SQL_NTS);
     retcode = SQLExecute(hstmt);
     retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
@@ -492,11 +552,6 @@ void ScheduleDataMapper::createTables() {
     retcode = SQLPrepare(hstmt,
         (SQLWCHAR*)L"create table if not exists schedule ("
         "id serial primary key,"
-        "auditory int references auditory(auditory) on update cascade on delete cascade,"
-        "group_ varchar(15) references group_(group_) on update cascade on delete cascade,"
-        "week varchar(15) references week(week) on update cascade on delete cascade,"
-        "day varchar(15) references day(day) on update cascade on delete cascade,"
-        "time varchar(15) references time(time) on update cascade on delete cascade,"
         "id_Auditory int references auditory(id) on update cascade on delete cascade,"
         "id_Group int references group_(id) on update cascade on delete cascade,"
         "id_Week int references week(id) on update cascade on delete cascade,"

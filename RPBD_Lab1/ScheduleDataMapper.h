@@ -21,6 +21,7 @@ public:
     ~ScheduleDataMapper();
 
     bool insert(Schedule schedule);
+    //void weekInsert(string time);
     void showAll();
     void showByGroup(string choice);
     bool edit(int number, Schedule schedule);
