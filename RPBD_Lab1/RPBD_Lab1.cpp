@@ -83,8 +83,6 @@ int main() {
             cin >> tempSchedule;
             if (dataMapper.insert(tempSchedule)) cout << "Вставка прошла успешно :)" << endl;
             else cout << "Что-то пошло не так, проверьте правильность ввода данных :(" << endl;
-            /*cin >> stringChoice;
-            dataMapper.weekInsert(stringChoice);*/
             break;
         case 3:
             cout << "Введите порядковый номер расписания: ";

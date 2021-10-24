@@ -143,52 +143,109 @@ bool ScheduleDataMapper::insert(Schedule schedule) {
 
 void ScheduleDataMapper::showAll() {
     int auditory = 0;
-    char week[20] = "";
+    int week = 0;
+    //int weeks[20]{};
+    int amountOfWeeks = 0;
     char group[20] = "";
     char day[20] = "";
-    char time[20] = "";
+    char start_time[20] = "";
+    char end_time[20] = "";
+    int id_auditory = 0, id_group = 0, id_week = 0, id_day = 0, id_time = 0;
+    int temp_id = 0;
 
-    retcode = SQLExecDirect(hstmt,
-        (SQLWCHAR*)L"select auditory, group_, week, day, time from schedule order by id;", SQL_NTS);
-    retcode = SQLBindCol(hstmt, 1, SQL_C_SLONG, &auditory, sizeof(auditory), NULL);
-    retcode = SQLBindCol(hstmt, 2, SQL_C_CHAR, group, 20, NULL);
-    retcode = SQLBindCol(hstmt, 3, SQL_C_CHAR, week, 20, NULL);
-    retcode = SQLBindCol(hstmt, 4, SQL_C_CHAR, day, 20, NULL);
-    retcode = SQLBindCol(hstmt, 5, SQL_C_CHAR, time, 20, NULL);
+    /*retcode = SQLExecDirect(hstmt,
+        (SQLWCHAR*)L"SELECT week, id_auditory, id_group, id_week, id_day, id_time FROM schedule"
+                    "INNER JOIN auditory on auditory.id = id_auditory"
+                    "INNER JOIN group_ on group_.id = id_group"
+                    "INNER JOIN week on week.id = id_week"
+                    "INNER JOIN day on day.id = id_day"
+                    "INNER JOIN time on time.id = id_time"
+                    "ORDER BY schedule.id; ", SQL_NTS);
+    retcode = SQLBindCol(hstmt, 1, SQL_C_SLONG, &week, sizeof(week), NULL);
+    retcode = SQLBindCol(hstmt, 2, SQL_C_SLONG, &id_auditory, sizeof(id_auditory), NULL);
+    retcode = SQLBindCol(hstmt, 3, SQL_C_SLONG, &id_group, sizeof(id_group), NULL);
+    retcode = SQLBindCol(hstmt, 4, SQL_C_SLONG, &id_week, sizeof(id_week), NULL);
+    retcode = SQLBindCol(hstmt, 5, SQL_C_SLONG, &id_day, sizeof(id_day), NULL);
+    retcode = SQLBindCol(hstmt, 6, SQL_C_SLONG, &id_time, sizeof(id_time), NULL);
 
     for (int i = 0; ; i++) {
         retcode = SQLFetch(hstmt);
         if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
             cout << "Error" << endl;
         if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-            cout << "Порядковый номер: " << i + 1 << endl;
-            cout << "Аудитория:\t" << auditory << endl;
+            if (id_auditory != temp_id && id_group != temp_id && id_week != temp_id &&
+                id_day != temp_id && id_time != temp_id) {
+                temp_id = id_auditory;
+                weeks[amountOfWeeks++] = week;
+            }
+            else {
 
-            cout << "Группа:\t\t";
-            for(int j = 0; j < 20; j++)
-                 cout << group[j];
-            cout << endl;
+            }
+        }
+        else break;
+    }
+    retcode = SQLFreeStmt(hstmt, SQL_CLOSE);*/
 
-            cout << "Недели:\t\t";
-            for (int j = 0; j < 20; j++)
-                cout << week[j];
-            cout << endl;
+    retcode = SQLExecDirect(hstmt,
+        (SQLWCHAR*)L"SELECT auditory, group_, week, day, start_time, end_time,"
+                    "id_auditory, id_group, id_week, id_day, id_time FROM schedule"
+                    "INNER JOIN auditory on auditory.id = id_auditory"
+                    "INNER JOIN group_ on group_.id = id_group"
+                    "INNER JOIN week on week.id = id_week"
+                    "INNER JOIN day on day.id = id_day"
+                    "INNER JOIN time on time.id = id_time;", SQL_NTS);
+    retcode = SQLBindCol(hstmt, 1, SQL_C_SLONG, &auditory, sizeof(auditory), NULL);
+    retcode = SQLBindCol(hstmt, 2, SQL_C_CHAR, group, 20, NULL);
+    retcode = SQLBindCol(hstmt, 3, SQL_C_SLONG, &week, sizeof(week), NULL);
+    retcode = SQLBindCol(hstmt, 4, SQL_C_CHAR, day, 20, NULL);
+    retcode = SQLBindCol(hstmt, 5, SQL_TIME, start_time, 20, NULL);
+    retcode = SQLBindCol(hstmt, 6, SQL_TIME, end_time, 20, NULL);
+    retcode = SQLBindCol(hstmt, 7, SQL_C_SLONG, &id_auditory, sizeof(id_auditory), NULL);
+    retcode = SQLBindCol(hstmt, 8, SQL_C_SLONG, &id_group, sizeof(id_group), NULL);
+    retcode = SQLBindCol(hstmt, 9, SQL_C_SLONG, &id_week, sizeof(id_week), NULL);
+    retcode = SQLBindCol(hstmt, 10, SQL_C_SLONG, &id_day, sizeof(id_day), NULL);
+    retcode = SQLBindCol(hstmt, 11, SQL_C_SLONG, &id_time, sizeof(id_time), NULL);
+    
 
-            cout << "День:\t\t";
-            for (int j = 0; j < 20; j++)
-                 cout << day[j];
-            cout << endl;
+    for (int i = 0; ; i++) {
+        retcode = SQLFetch(hstmt);
+        cout << retcode << endl;
+        if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
+            cout << "Error" << endl;
+        if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+            if (id_auditory != temp_id && id_group != temp_id && id_week != temp_id &&
+                id_day != temp_id && id_time != temp_id) {
+                temp_id = id_auditory;
+                cout << endl << endl;
+                //cout << "Порядковый номер: " << i + 1 << endl;
+                cout << "Аудитория:\t" << auditory << endl;
 
-            cout << "Время:\t\t";
-            for (int j = 0; j < 20; j++)
-                 cout << time[j];
-            cout << endl << endl;
+                cout << "Группа:\t\t";
+                for (int j = 0; j < 20; j++)
+                    cout << group[j];
+                cout << endl;
+
+                cout << "День:\t\t";
+                for (int j = 0; j < 20; j++)
+                    cout << day[j];
+                cout << endl;
+
+                cout << "Время:\t\t";
+                cout << string(start_time) << '-' << string(end_time) << endl;
+                //for (int j = 0; j < 20; j++)
+                  //  cout << time[j];
+                //cout << endl;
+
+                cout << "Недели:\t\t";
+                cout << week << ' ';
+            }
+            else cout << week << ' ';
 
             for (int j = 0; j < 20; j++) {
                 group[j] = ' ';
-                week[j] = ' ';
                 day[j] = ' ';
-                time[j] = ' ';
+                start_time[j] = ' ';
+                end_time[j] = ' ';
             }
         }
         else break;
