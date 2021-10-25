@@ -9,8 +9,6 @@ using namespace std;
 
 class ScheduleDataMapper {
 private:
-    //vector<Schedule> scheduleVector;
-
     SQLHENV henv; // Дескриптор окружения
     SQLHDBC hdbc; // Дескриптор соединения
     SQLHSTMT hstmt; // Дескриптор оператора
@@ -22,10 +20,12 @@ public:
 
     bool insert(Schedule schedule);
     void showAll();
+    void showAllGroups();
     void showByGroup(string choice);
+    bool fullEdit(int number, Schedule schedule);
     bool edit(int number, Schedule schedule);
     bool remove(int number);
-    void findFreeAuditoryByTime(int auditoryChoice, string timeChoice);
+    void findFreeAuditoryByTime(string timeChoice);
     void findFreeAuditoryByNumberOfHours(int auditoryChoice, int numberOfHoursChoice, int weekNumber);
     void createTables();
 
