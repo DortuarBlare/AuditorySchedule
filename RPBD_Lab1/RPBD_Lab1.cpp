@@ -328,14 +328,12 @@ int main() {
             dataMapper.findFreeAuditoryByTime(stringChoice);
             break;
         case 6:
-            int amountOfHours, weekNumber;
-            cout << "Введите номер аудитории: ";
-            cin >> choice;
+            int weekNumber;
             cout << "Введите количество часов: ";
-            cin >> amountOfHours;
+            cin >> choice;
             cout << "Введите номер недели: ";
             cin >> weekNumber;
-            dataMapper.findFreeAuditoryByNumberOfHours(choice, amountOfHours, weekNumber);
+            dataMapper.findFreeAuditoryByNumberOfHours(choice, weekNumber);
             break;
         case 0:
             return 0;

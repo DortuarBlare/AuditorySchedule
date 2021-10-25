@@ -26,7 +26,7 @@ public:
     bool edit(int number, Schedule schedule);
     bool remove(int number);
     void findFreeAuditoryByTime(string timeChoice);
-    void findFreeAuditoryByNumberOfHours(int auditoryChoice, int numberOfHoursChoice, int weekNumber);
+    void findFreeAuditoryByNumberOfHours(int numberOfHoursChoice, int weekNumber);
     void createTables();
 
     int connectToDB();
