@@ -600,27 +600,30 @@ void ScheduleDataMapper::findFreeAuditoryByTime(string timeChoice) {
             else busyAuditory.push_back(auditory);
                 
 
-            for (int j = 0; j < 20; j++) {
-                day[i] = ' ';
-            }
+            for (int j = 0; j < 20; j++)
+                day[j] = '0';
         }
         else break;
     }
     retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
 
-    cout << "—вободны все аудитории, кроме: ";
+    cout << "јудитори€(и): ";
     for (int i = 0; i < busyAuditory.size(); i++)
         cout << busyAuditory[i] << ' ';
-    cout << endl;
-    cout << "¬ " << timeChoice << " в данные недели и дни:" << endl;
+    cout << endl << "свободна(ы) в " << timeChoice << " в данные недели и дни:" << endl << endl;
     for (int i = 0; i < 18; i++) {
         if (i < 9) cout << ' ';
         cout << i + 1 << " недел€:\t ";
-        for (int j = 0; j < weeksAndDays[i].size(); j++)
-            cout << weeksAndDays[i][j] << ", ";
+        for (int j = 0; j < weeksAndDays[i].size(); j++) {
+            if (j == weeksAndDays[i].size() - 1)
+                cout << weeksAndDays[i][j];
+            else 
+                cout << weeksAndDays[i][j] << ", ";
+
+        }
         cout << endl;
     }
-    cout << endl;
+    cout << endl << "ќстальные аудитории в " << timeChoice << " свободны в любой день любой недели" << endl << endl;
     
     weeksAndDays.clear();
     weeksAndDays.shrink_to_fit();
@@ -741,20 +744,20 @@ void ScheduleDataMapper::findFreeAuditoryByNumberOfHours(int numberOfHoursChoice
             else busyAuditory.push_back(auditory);
 
             for (int j = 0; j < 20; j++) {
-                day[i] = ' ';
-                startTime[i] = ' ';
-                endTime[i] = ' ';
+                day[j] = ' ';
+                startTime[j] = ' ';
+                endTime[j] = ' ';
             }
         }
         else break;
     }
     retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
 
-    cout << endl << "—вободны все аудитории кроме: ";
+    cout << endl << "јудитори€(и): ";
     for (int i = 0; i < busyAuditory.size(); i++)
         cout << busyAuditory[i] << ' ';
-    cout << endl;
-    cout << "Ќа " << weekNumber << " неделе:" << endl;
+    cout << endl << "на " << ceil(double(numberOfHoursChoice * 60) / 90) << " зан€тий свободна(ы) на " 
+        << weekNumber << " неделе в данные дни и врем€:" << endl << endl;
     for (int i = 0; i < 7; i++) {
         amountOfClassesOnEachDay = amountOfClassesOnEachDay == 0 ? temp : temp + amountOfClassesOnEachDay;
         if (i == 0)      cout << "ѕонедельник:\t ";
@@ -774,7 +777,7 @@ void ScheduleDataMapper::findFreeAuditoryByNumberOfHours(int numberOfHoursChoice
         cout << endl;
         if (amountOfClasses == 0) break;
     }
-    cout << endl;
+    cout << endl << "ќстальные аудитории на " << weekNumber << " неделе свободны в любой день в любое врем€" << endl << endl;
 
     daysAndTime.clear();
     daysAndTime.shrink_to_fit();

@@ -126,7 +126,7 @@ void printMenu(int width) {
     printedSymbolsInRow = 0;
     cout << '|' << endl;
 
-    cout << '|'; printedSymbolsInRow++;
+    /*cout << '|'; printedSymbolsInRow++;
     for (int i = 1; i <= symbolsToPrint; i++, printedSymbolsInRow++)
         cout << ' ';
     currentString = "  г) недели (возможно когда-нибудь будет сделано)";
@@ -134,12 +134,12 @@ void printMenu(int width) {
     printedSymbolsInRow += currentString.length();
     for (int i = 1; i < width - printedSymbolsInRow; i++) cout << ' ';
     printedSymbolsInRow = 0;
-    cout << '|' << endl;
+    cout << '|' << endl;*/
 
     cout << '|'; printedSymbolsInRow++;
     for (int i = 1; i <= symbolsToPrint; i++, printedSymbolsInRow++)
         cout << ' ';
-    currentString = "  д) день недели";
+    currentString = "  г) день недели";
     cout << currentString;
     printedSymbolsInRow += currentString.length();
     for (int i = 1; i < width - printedSymbolsInRow; i++) cout << ' ';
@@ -149,7 +149,7 @@ void printMenu(int width) {
     cout << '|'; printedSymbolsInRow++;
     for (int i = 1; i <= symbolsToPrint; i++, printedSymbolsInRow++)
         cout << ' ';
-    currentString = "  е) время";
+    currentString = "  д) время";
     cout << currentString;
     printedSymbolsInRow += currentString.length();
     for (int i = 1; i < width - printedSymbolsInRow; i++) cout << ' ';
@@ -291,9 +291,6 @@ int main() {
                 else cout << "Что-то пошло не так, проверьте правильность ввода данных :(" << endl;
                 break;
             case 'г':
-
-                break;
-            case 'д':
                 cout << "Введите порядковый номер расписания: ";
                 cin >> choice;
                 cout << "Введите новый день недели: ";
@@ -302,7 +299,7 @@ int main() {
                     cout << "Редактирование прошло успешно :)" << endl;
                 else cout << "Что-то пошло не так, проверьте правильность ввода данных :(" << endl;
                 break;
-            case 'е':
+            case 'д':
                 cout << "Введите порядковый номер расписания: ";
                 cin >> choice;
                 cout << "Введите новое время: ";
