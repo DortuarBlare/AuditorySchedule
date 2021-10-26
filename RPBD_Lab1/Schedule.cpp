@@ -2,14 +2,14 @@
 
 Schedule::Schedule() {
 	this->id = -1;
-	this->auditory = -1;
+	this->auditory = "...";
 	this->week = "...";
 	this->group = "...";
 	this->day = "...";
 	this->time = "...";
 }
 
-Schedule::Schedule(int id, int auditory, string group, string week, string day, string time) {
+Schedule::Schedule(int id, string auditory, string group, string week, string day, string time) {
 	this->id = id;
 	this->auditory = auditory;
 	this->group = group;
@@ -18,7 +18,7 @@ Schedule::Schedule(int id, int auditory, string group, string week, string day, 
 	this->time = time;
 }
 
-Schedule::Schedule(int auditory, string group, string week, string day, string time) {
+Schedule::Schedule(string auditory, string group, string week, string day, string time) {
 	this->id = -1;
 	this->auditory = auditory;
 	this->group = group;
@@ -74,20 +74,21 @@ ostream& operator<<(ostream& os, Schedule& outputSchedule) {
 
 istream& operator>>(istream& is, Schedule& inputSchedule) {
 	cout << "Аудитория: ";
-	is >> inputSchedule.auditory;
-	while (is.fail()) {
-		is.clear();
-		is.ignore(32767, '\n');
-		is >> inputSchedule.auditory;
-	}
+	//is >> inputSchedule.auditory;
+	is.ignore();
+	getline(is, inputSchedule.auditory);
 	cout << "Группа: ";
-	is >> inputSchedule.group;
+	//is >> inputSchedule.group;
+	getline(is, inputSchedule.group);
 	cout << "Недели: ";
-	is >> inputSchedule.week;
+	//is >> inputSchedule.week;
+	getline(is, inputSchedule.week);
 	cout << "День: ";
-	is >> inputSchedule.day;
+	//is >> inputSchedule.day;
+	getline(is, inputSchedule.day);
 	cout << "Время: ";
-	is >> inputSchedule.time;
+	//is >> inputSchedule.time;
+	getline(is, inputSchedule.time);
 	return is;
 	
 	/*cout << "Аудитория: ";
@@ -120,11 +121,11 @@ int Schedule::getId() {
 	return this->id;
 }
 
-void Schedule::setAuditoryNumber(int classroomNumber) {
-	this->auditory = classroomNumber;
+void Schedule::setAuditory(string auditory) {
+	this->auditory = auditory;
 }
 
-int Schedule::getAuditoryNumber() {
+string Schedule::getAuditory() {
 	return this->auditory;
 }
 

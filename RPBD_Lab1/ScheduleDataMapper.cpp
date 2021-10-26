@@ -10,7 +10,7 @@ ScheduleDataMapper::~ScheduleDataMapper() {
 }
 
 bool ScheduleDataMapper::insert(Schedule schedule) {
-    SQLINTEGER auditory = schedule.getAuditoryNumber();
+    SQLWCHAR auditory[20];
     SQLINTEGER weeks[20];
     SQLWCHAR group[20];
     SQLWCHAR day[20];
@@ -20,6 +20,7 @@ bool ScheduleDataMapper::insert(Schedule schedule) {
     bool foundStartTime = false;
     SQLINTEGER id_auditory = 0, id_group = 0, id_week = 0, id_day = 0, id_time = 0;
 
+    strcpy_s((char*)auditory, strlen(schedule.getAuditory().c_str()) + 1, schedule.getAuditory().c_str());
     strcpy_s((char*)group, strlen(schedule.getGroup().c_str()) + 1, schedule.getGroup().c_str());
     strcpy_s((char*)day, strlen(schedule.getDay().c_str()) + 1, schedule.getDay().c_str());
 
@@ -57,12 +58,16 @@ bool ScheduleDataMapper::insert(Schedule schedule) {
         }
     }
 
+    retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, auditory, 0, NULL);
+    retcode = SQLExecDirect(hstmt, (SQLWCHAR*)L"INSERT INTO auditory(auditory) VALUES (?);", SQL_NTS);
+    retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
+
     retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, group, 0, NULL);
     retcode = SQLExecDirect(hstmt, (SQLWCHAR*)L"INSERT INTO group_(group_) VALUES (?);", SQL_NTS);
     retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
 
     // Запросы для получения id каждого поля
-    retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &auditory, 0, NULL);
+    retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, auditory, 0, NULL);
     retcode = SQLExecDirect(hstmt,
         (SQLWCHAR*)L"SELECT id FROM auditory WHERE auditory = ?; ", SQL_NTS);
     retcode = SQLBindCol(hstmt, 1, SQL_C_SLONG, &id_auditory, sizeof(id_auditory), NULL);
@@ -71,14 +76,14 @@ bool ScheduleDataMapper::insert(Schedule schedule) {
 
     retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, group, 0, NULL);
     retcode = SQLExecDirect(hstmt,
-        (SQLWCHAR*)L"select id from group_ where group_ = ?; ", SQL_NTS);
+        (SQLWCHAR*)L"SELECT id FROM group_ WHERE group_ = ?; ", SQL_NTS);
     retcode = SQLBindCol(hstmt, 1, SQL_C_SLONG, &id_group, sizeof(id_group), NULL);
     retcode = SQLFetch(hstmt);
     retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
 
     retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, day, 0, NULL);
     retcode = SQLExecDirect(hstmt,
-        (SQLWCHAR*)L"select id from day where day = ?; ", SQL_NTS);
+        (SQLWCHAR*)L"SELECT id FROM day WHERE day = ?; ", SQL_NTS);
     retcode = SQLBindCol(hstmt, 1, SQL_C_SLONG, &id_day, sizeof(id_day), NULL);
     retcode = SQLFetch(hstmt);
     retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
@@ -86,26 +91,20 @@ bool ScheduleDataMapper::insert(Schedule schedule) {
     retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, startTime, 0, NULL);
     retcode = SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, endTime, 0, NULL);
     retcode = SQLExecDirect(hstmt,
-        (SQLWCHAR*)L"select id from time where start_time = ? and end_time = ?; ", SQL_NTS);
+        (SQLWCHAR*)L"SELECT id FROM time_ WHERE start_time = ? AND end_time = ?; ", SQL_NTS);
     retcode = SQLBindCol(hstmt, 1, SQL_C_SLONG, &id_time, sizeof(id_time), NULL);
     retcode = SQLFetch(hstmt);
     retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
 
     for (int i = 0; i < amountOfWeeks; i++) {
-        retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &weeks[i], 0, NULL);
-        retcode = SQLExecDirect(hstmt, (SQLWCHAR*)L"SELECT id from week where week = ?; ", SQL_NTS);
-        retcode = SQLBindCol(hstmt, 1, SQL_C_SLONG, &id_week, sizeof(id_week), NULL);
-        retcode = SQLFetch(hstmt);
-        retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
-
         retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &id_auditory, 0, NULL);
         retcode = SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &id_group, 0, NULL);
-        retcode = SQLBindParameter(hstmt, 3, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &id_week, 0, NULL);
+        retcode = SQLBindParameter(hstmt, 3, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &weeks[i], 0, NULL);
         retcode = SQLBindParameter(hstmt, 4, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &id_day, 0, NULL);
         retcode = SQLBindParameter(hstmt, 5, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &id_time, 0, NULL);
         retcode = SQLExecDirect(hstmt,
-            (SQLWCHAR*)L"INSERT INTO schedule(id_auditory, id_group, id_week, id_day, id_time)"
-            "VALUES (?, ?, ?, ?, ?);", SQL_NTS);
+            (SQLWCHAR*)L"INSERT INTO schedule(id_auditory, id_group, week, id_day, id_time)"
+                        "VALUES (?, ?, ?, ?, ?);", SQL_NTS);
         if (retcode < 0) return false;
         retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
     }
@@ -114,26 +113,25 @@ bool ScheduleDataMapper::insert(Schedule schedule) {
 }
 
 void ScheduleDataMapper::showAll() {
-    int auditory = 0;
+    char auditory[20] = "";
     int week = 0;
     char group[20] = "";
     char day[20] = "";
     char start_time[20] = "";
     char end_time[20] = "";
-    int id_auditory = 0, id_group = 0, id_week = 0, id_day = 0, id_time = 0;
-    int temp_id = 0;
+    int id_auditory = 0, id_group = 0, id_day = 0, id_time = 0;
+    int temp_id_auditory = 0, temp_id_group = 0, temp_id_day = 0, temp_id_time = 0;
 
     retcode = SQLExecDirect(hstmt,
         (SQLWCHAR*)L"SELECT auditory, group_, week, day, start_time, end_time, "
-                    "id_auditory, id_group, id_week, id_day, id_time FROM schedule "
+                    "id_auditory, id_group, id_day, id_time FROM schedule "
                     "INNER JOIN auditory on auditory.id = id_auditory "
                     "INNER JOIN group_ on group_.id = id_group "
-                    "INNER JOIN week on week.id = id_week "
                     "INNER JOIN day on day.id = id_day "
-                    "INNER JOIN time on time.id = id_time "
-                    "ORDER BY schedule.id;", SQL_NTS);
+                    "INNER JOIN time_ on time_.id = id_time "
+                    "ORDER BY auditory, group_, day, week;", SQL_NTS);
 
-    retcode = SQLBindCol(hstmt, 1,  SQL_C_SLONG,     &auditory,     sizeof(auditory),    NULL);
+    retcode = SQLBindCol(hstmt, 1,  SQL_C_CHAR,      auditory,      20,                  NULL);
     retcode = SQLBindCol(hstmt, 2,  SQL_C_CHAR,      group,         20,                  NULL);
     retcode = SQLBindCol(hstmt, 3,  SQL_C_SLONG,     &week,         sizeof(week),        NULL);
     retcode = SQLBindCol(hstmt, 4,  SQL_C_CHAR,      day,           20,                  NULL);
@@ -141,41 +139,120 @@ void ScheduleDataMapper::showAll() {
     retcode = SQLBindCol(hstmt, 6,  SQL_C_CHAR,      &end_time,     20,                  NULL);
     retcode = SQLBindCol(hstmt, 7,  SQL_C_SLONG,     &id_auditory,  sizeof(id_auditory), NULL);
     retcode = SQLBindCol(hstmt, 8,  SQL_C_SLONG,     &id_group,     sizeof(id_group),    NULL);
-    retcode = SQLBindCol(hstmt, 9,  SQL_C_SLONG,     &id_week,      sizeof(id_week),     NULL);
-    retcode = SQLBindCol(hstmt, 10, SQL_C_SLONG,     &id_day,       sizeof(id_day),      NULL);
-    retcode = SQLBindCol(hstmt, 11, SQL_C_SLONG,     &id_time,      sizeof(id_time),     NULL);
+    retcode = SQLBindCol(hstmt, 9,  SQL_C_SLONG,     &id_day,       sizeof(id_day),      NULL);
+    retcode = SQLBindCol(hstmt, 10, SQL_C_SLONG,     &id_time,      sizeof(id_time),     NULL);
 
     for (int i = 0, j = 1; ; i++) {
         retcode = SQLFetch(hstmt);
         if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
             cout << "Error" << endl;
         if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-            if (id_auditory != temp_id && id_group != temp_id && id_week != temp_id &&
-                id_day != temp_id && id_time != temp_id) {
-                temp_id = id_auditory;
+            if (id_auditory != temp_id_auditory || id_group != temp_id_group ||
+                id_day      != temp_id_day      || id_time  != temp_id_time) {
+                temp_id_auditory = id_auditory;
+                temp_id_group = id_group;
+                temp_id_day = id_day;
+                temp_id_time = id_time;
+
                 cout << endl << endl;
                 cout << "Порядковый номер расписания: " << j++ << endl;
-                cout << "Аудитория:\t" << auditory << endl;
+                cout << "Аудитория:\t" << string(auditory) << endl;
 
-                cout << "Группа:\t\t";
-                cout << string(group) << endl;
+                cout << "Группа:\t\t" << string(group) << endl;
 
-                cout << "День:\t\t";
-                cout << string(day) << endl;
+                cout << "День:\t\t" << string(day) << endl;
 
                 string tempStartTime(start_time);
                 string tempEndTime(end_time);
                 tempStartTime.resize(tempStartTime.size() - 3);
                 tempEndTime.resize(tempEndTime.size() - 3);
-                cout << "Время:\t\t";
-                cout << tempStartTime << '-' << tempEndTime << endl;
+                cout << "Время:\t\t" << tempStartTime << " - " << tempEndTime << endl;
 
-                cout << "Недели:\t\t";
-                cout << week << ' ';
+                cout << "Недели:\t\t" << week << ' ';
             }
             else cout << week << ' ';
 
             for (int j = 0; j < 20; j++) {
+                auditory[j] = ' ';
+                group[j] = ' ';
+                day[j] = ' ';
+                start_time[j] = ' ';
+                end_time[j] = ' ';
+            }
+        }
+        else {
+            cout << endl;
+            break;
+        }
+    }
+    retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
+}
+
+void ScheduleDataMapper::showByGroup(string choice) {
+    char auditory[20] = "";
+    int week = 0;
+    char group[20] = "";
+    char day[20] = "";
+    char start_time[20] = "";
+    char end_time[20] = "";
+    int id_auditory = 0, id_group = 0, id_day = 0, id_time = 0;
+    int temp_id_auditory = 0, temp_id_group = 0, temp_id_day = 0, temp_id_time = 0;
+
+    strcpy_s((char*)group, strlen(choice.c_str()) + 1, choice.c_str());
+
+    retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, group, 0, NULL);
+    retcode = SQLExecDirect(hstmt,
+        (SQLWCHAR*)L"SELECT auditory, group_, week, day, start_time, end_time, "
+                    "id_auditory, id_group, id_day, id_time FROM schedule "
+                    "INNER JOIN auditory on auditory.id = id_auditory "
+                    "INNER JOIN group_ on group_.id = id_group "
+                    "INNER JOIN day on day.id = id_day "
+                    "INNER JOIN time_ on time_.id = id_time "
+                    "WHERE group_ = ? "
+                    "ORDER BY auditory, day, week", SQL_NTS);
+
+    retcode = SQLBindCol(hstmt, 1,  SQL_C_CHAR,  auditory,     20,                  NULL);
+    retcode = SQLBindCol(hstmt, 2,  SQL_C_CHAR,  group,        20,                  NULL);
+    retcode = SQLBindCol(hstmt, 3,  SQL_C_SLONG, &week,        sizeof(week),        NULL);
+    retcode = SQLBindCol(hstmt, 4,  SQL_C_CHAR,  day,          20,                  NULL);
+    retcode = SQLBindCol(hstmt, 5,  SQL_C_CHAR,  &start_time,  20,                  NULL);
+    retcode = SQLBindCol(hstmt, 6,  SQL_C_CHAR,  &end_time,    20,                  NULL);
+    retcode = SQLBindCol(hstmt, 7,  SQL_C_SLONG, &id_auditory, sizeof(id_auditory), NULL);
+    retcode = SQLBindCol(hstmt, 8,  SQL_C_SLONG, &id_group,    sizeof(id_group),    NULL);
+    retcode = SQLBindCol(hstmt, 9,  SQL_C_SLONG, &id_day,      sizeof(id_day),      NULL);
+    retcode = SQLBindCol(hstmt, 10, SQL_C_SLONG, &id_time,     sizeof(id_time),     NULL);
+
+    for (int i = 0; ; i++) {
+        retcode = SQLFetch(hstmt);
+        if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
+            cout << "Error" << endl;
+        if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+            if (id_auditory != temp_id_auditory || id_group != temp_id_group ||
+                id_day != temp_id_day || id_time != temp_id_time) {
+                temp_id_auditory = id_auditory;
+                temp_id_group = id_group;
+                temp_id_day = id_day;
+                temp_id_time = id_time;
+
+                cout << endl << endl;
+                cout << "Аудитория:\t" << string(auditory) << endl;
+
+                cout << "Группа:\t\t" << string(group) << endl;
+
+                cout << "День:\t\t" << string(day) << endl;
+
+                string tempStartTime(start_time);
+                string tempEndTime(end_time);
+                tempStartTime.resize(tempStartTime.size() - 3);
+                tempEndTime.resize(tempEndTime.size() - 3);
+                cout << "Время:\t\t" << tempStartTime << " - " << tempEndTime << endl;
+
+                cout << "Недели:\t\t" << week << ' ';
+            }
+            else cout << week << ' ';
+
+            for (int j = 0; j < 20; j++) {
+                auditory[j] = ' ';
                 group[j] = ' ';
                 day[j] = ' ';
                 start_time[j] = ' ';
@@ -191,11 +268,11 @@ void ScheduleDataMapper::showAll() {
 }
 
 void ScheduleDataMapper::showAllGroups() {
-    char group[20] = "";
+    char group[20] = "";    
 
     retcode = SQLExecDirect(hstmt, (SQLWCHAR*)L"SELECT group_ FROM group_;", SQL_NTS);
     retcode = SQLBindCol(hstmt, 1, SQL_C_CHAR, group, 20, NULL);
-    cout << "Все группы: " << endl;
+    cout << endl << "Все группы: " << endl;
 
     for (int i = 0; ; i++) {
         retcode = SQLFetch(hstmt);
@@ -204,87 +281,35 @@ void ScheduleDataMapper::showAllGroups() {
         if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
             cout << string(group) << endl;
 
-            for (int j = 0; j < 20; j++) {
+            for (int j = 0; j < 20; j++) 
                 group[j] = ' ';
-            }
         }
         else break;
     }
+    cout << endl;
     retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
 }
 
-void ScheduleDataMapper::showByGroup(string choice) {
-    int auditory = 0;
-    int week = 0;
-    char group[20] = "";
-    char day[20] = "";
-    char start_time[20] = "";
-    char end_time[20] = "";
-    int id_auditory = 0, id_group = 0, id_week = 0, id_day = 0, id_time = 0;
-    int temp_id = 0;
+void ScheduleDataMapper::showAllAuditories() {
+    char auditory[20] = "";
 
-    strcpy_s((char*)group, strlen(choice.c_str()) + 1, choice.c_str());
-
-    retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, group, 0, NULL);
-    retcode = SQLExecDirect(hstmt,
-        (SQLWCHAR*)L"SELECT auditory, group_, week, day, start_time, end_time, "
-                    "id_auditory, id_group, id_week, id_day, id_time FROM schedule "
-                    "INNER JOIN auditory on auditory.id = id_auditory "
-                    "INNER JOIN group_ on group_.id = id_group "
-                    "INNER JOIN week on week.id = id_week "
-                    "INNER JOIN day on day.id = id_day "
-                    "INNER JOIN time on time.id = id_time "
-                    "WHERE group_ = ?", SQL_NTS);
-
-    retcode = SQLBindCol(hstmt, 1,  SQL_C_SLONG, &auditory,    sizeof(auditory),    NULL);
-    retcode = SQLBindCol(hstmt, 2,  SQL_C_CHAR,  group,        20,                  NULL);
-    retcode = SQLBindCol(hstmt, 3,  SQL_C_SLONG, &week,        sizeof(week),        NULL);
-    retcode = SQLBindCol(hstmt, 4,  SQL_C_CHAR,  day,          20,                  NULL);
-    retcode = SQLBindCol(hstmt, 5,  SQL_C_CHAR,  &start_time,  20,                  NULL);
-    retcode = SQLBindCol(hstmt, 6,  SQL_C_CHAR,  &end_time,    20,                  NULL);
-    retcode = SQLBindCol(hstmt, 7,  SQL_C_SLONG, &id_auditory, sizeof(id_auditory), NULL);
-    retcode = SQLBindCol(hstmt, 8,  SQL_C_SLONG, &id_group,    sizeof(id_group),    NULL);
-    retcode = SQLBindCol(hstmt, 9,  SQL_C_SLONG, &id_week,     sizeof(id_week),     NULL);
-    retcode = SQLBindCol(hstmt, 10, SQL_C_SLONG, &id_day,      sizeof(id_day),      NULL);
-    retcode = SQLBindCol(hstmt, 11, SQL_C_SLONG, &id_time,     sizeof(id_time),     NULL);
+    retcode = SQLExecDirect(hstmt, (SQLWCHAR*)L"SELECT auditory FROM auditory;", SQL_NTS);
+    retcode = SQLBindCol(hstmt, 1, SQL_C_CHAR, auditory, 20, NULL);
+    cout << endl << "Все аудитории: " << endl;
 
     for (int i = 0; ; i++) {
         retcode = SQLFetch(hstmt);
         if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
             cout << "Error" << endl;
         if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-            if (id_auditory != temp_id && id_group != temp_id && id_week != temp_id &&
-                id_day != temp_id && id_time != temp_id) {
-                temp_id = id_auditory;
-                cout << endl << endl;
-                cout << "Аудитория:\t" << auditory << endl;
+            cout << string(auditory) << endl;
 
-                cout << "Группа:\t\t";
-                cout << string(group) << endl;
-
-                cout << "День:\t\t";
-                cout << string(day) << endl;
-
-                cout << "Время:\t\t";
-                cout << string(start_time) << '-' << string(end_time) << endl;
-
-                cout << "Недели:\t\t";
-                cout << week << ' ';
-            }
-            else cout << week << ' ';
-
-            for (int j = 0; j < 20; j++) {
-                group[j] = ' ';
-                day[j] = ' ';
-                start_time[j] = ' ';
-                end_time[j] = ' ';
-            }
+            for (int j = 0; j < 20; j++)
+                auditory[j] = ' ';
         }
-        else {
-            cout << endl;
-            break;
-        }
+        else break;
     }
+    cout << endl;
     retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
 }
 
@@ -296,26 +321,32 @@ bool ScheduleDataMapper::fullEdit(int number, Schedule schedule) {
 }
 
 bool ScheduleDataMapper::edit(int number, Schedule schedule) {
-    SQLINTEGER auditory;
+    SQLWCHAR auditory[20];
     SQLWCHAR group[20];
     SQLWCHAR day[20];
     SQLWCHAR startTime[20];
     SQLWCHAR endTime[20];
     string _startTime, _endTime;
     bool foundStartTime = false;
-    SQLINTEGER id = 0, id_auditory = 0, id_group = 0, id_week = 0, id_day = 0, id_time = 0;
+    SQLINTEGER id = 0, id_auditory = 0, id_group = 0, id_day = 0, id_time = 0;
+    SQLINTEGER temp_id_auditory = 0, temp_id_group = 0, temp_id_day = 0, temp_id_time = 0;
     int fieldToEdit = 0;
-    int temp_id = 0;
     bool firstSchedule = true;
     vector<vector<int>> idList;
 
-    retcode = SQLExecDirect(hstmt, (SQLWCHAR*)L"SELECT * FROM schedule ORDER BY id;", SQL_NTS);
-    retcode = SQLBindCol(hstmt, 1, SQL_C_SLONG, &id, sizeof(id), NULL);
-    retcode = SQLBindCol(hstmt, 2, SQL_C_SLONG, &id_auditory, sizeof(id_auditory), NULL);
-    retcode = SQLBindCol(hstmt, 3, SQL_C_SLONG, &id_group, sizeof(id_group), NULL);
-    retcode = SQLBindCol(hstmt, 4, SQL_C_SLONG, &id_week, sizeof(id_week), NULL);
-    retcode = SQLBindCol(hstmt, 5, SQL_C_SLONG, &id_day, sizeof(id_day), NULL);
-    retcode = SQLBindCol(hstmt, 6, SQL_C_SLONG, &id_time, sizeof(id_time), NULL);
+    retcode = SQLExecDirect(hstmt,
+        (SQLWCHAR*)L"SELECT auditory, group_, week, day, start_time, end_time, "
+                    "schedule.id, id_auditory, id_group, id_day, id_time FROM schedule "
+                    "INNER JOIN auditory on auditory.id = id_auditory "
+                    "INNER JOIN group_ on group_.id = id_group "
+                    "INNER JOIN day on day.id = id_day "
+                    "INNER JOIN time_ on time_.id = id_time "
+                    "ORDER BY auditory, group_, day, week;", SQL_NTS);
+    retcode = SQLBindCol(hstmt, 7,  SQL_C_SLONG, &id,          sizeof(id),          NULL);
+    retcode = SQLBindCol(hstmt, 8,  SQL_C_SLONG, &id_auditory, sizeof(id_auditory), NULL);
+    retcode = SQLBindCol(hstmt, 9,  SQL_C_SLONG, &id_group,    sizeof(id_group),    NULL);
+    retcode = SQLBindCol(hstmt, 10, SQL_C_SLONG, &id_day,      sizeof(id_day),      NULL);
+    retcode = SQLBindCol(hstmt, 11, SQL_C_SLONG, &id_time,     sizeof(id_time),     NULL);
 
     // Составляем список id для каждого расписания
     for (int i = 0, j = 0; ; i++) {
@@ -323,9 +354,13 @@ bool ScheduleDataMapper::edit(int number, Schedule schedule) {
         if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
             cout << "Error" << endl;
         if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-            if (id_auditory != temp_id && id_group != temp_id && id_week != temp_id &&
-                id_day != temp_id && id_time != temp_id) {
-                temp_id = id_auditory;
+            if (id_auditory != temp_id_auditory || id_group != temp_id_group ||
+                id_day != temp_id_day || id_time != temp_id_time) {
+                temp_id_auditory = id_auditory;
+                temp_id_group = id_group;
+                temp_id_day = id_day;
+                temp_id_time = id_time;
+
                 idList.push_back(vector<int>());
                 if (firstSchedule) {
                     idList[j].push_back(id);
@@ -342,10 +377,10 @@ bool ScheduleDataMapper::edit(int number, Schedule schedule) {
     if (number < 1 || number > idList.size())
         return false;
 
-    if (schedule.getAuditoryNumber() != 0) {
+    if (schedule.getAuditory() != "...") {
         fieldToEdit = 1;
-        auditory = schedule.getAuditoryNumber();
-        retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &auditory, 0, NULL);
+        strcpy_s((char*)auditory, strlen(schedule.getAuditory().c_str()) + 1, schedule.getAuditory().c_str());
+        retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, auditory, 0, NULL);
         retcode = SQLExecDirect(hstmt, (SQLWCHAR*)L"SELECT id FROM auditory WHERE auditory = ?; ", SQL_NTS);
         retcode = SQLBindCol(hstmt, 1, SQL_C_SLONG, &id_auditory, sizeof(id_auditory), NULL);
         retcode = SQLFetch(hstmt);
@@ -388,7 +423,7 @@ bool ScheduleDataMapper::edit(int number, Schedule schedule) {
         strcpy_s((char*)endTime, strlen(_endTime.c_str()) + 1, _endTime.c_str());
         retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, startTime, 0, NULL);
         retcode = SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, endTime, 0, NULL);
-        retcode = SQLExecDirect(hstmt, (SQLWCHAR*)L"select id from time where start_time = ? and end_time = ?; ", SQL_NTS);
+        retcode = SQLExecDirect(hstmt, (SQLWCHAR*)L"select id from time_ where start_time = ? and end_time = ?; ", SQL_NTS);
         retcode = SQLBindCol(hstmt, 1, SQL_C_SLONG, &id_time, sizeof(id_time), NULL);
         retcode = SQLFetch(hstmt);
         retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
@@ -430,27 +465,37 @@ bool ScheduleDataMapper::edit(int number, Schedule schedule) {
 }
 
 bool ScheduleDataMapper::remove(int number) {
-    int id = 0, id_auditory = 0, id_group = 0, id_week = 0, id_day = 0, id_time = 0;
-    int temp_id = 0;
+    int id = 0, id_auditory = 0, id_group = 0, id_day = 0, id_time = 0;
+    int temp_id_auditory = 0, temp_id_group = 0, temp_id_day = 0, temp_id_time = 0;
     bool firstSchedule = true;
     vector<vector<int>> idList;
 
-    retcode = SQLExecDirect(hstmt, (SQLWCHAR*)L"SELECT * FROM schedule ORDER BY id;", SQL_NTS);
-    retcode = SQLBindCol(hstmt, 1, SQL_C_SLONG, &id, sizeof(id), NULL);
-    retcode = SQLBindCol(hstmt, 2, SQL_C_SLONG, &id_auditory, sizeof(id_auditory), NULL);
-    retcode = SQLBindCol(hstmt, 3, SQL_C_SLONG, &id_group, sizeof(id_group), NULL);
-    retcode = SQLBindCol(hstmt, 4, SQL_C_SLONG, &id_week, sizeof(id_week), NULL);
-    retcode = SQLBindCol(hstmt, 5, SQL_C_SLONG, &id_day, sizeof(id_day), NULL);
-    retcode = SQLBindCol(hstmt, 6, SQL_C_SLONG, &id_time, sizeof(id_time), NULL);
+    retcode = SQLExecDirect(hstmt,
+        (SQLWCHAR*)L"SELECT auditory, group_, week, day, start_time, end_time, "
+                    "schedule.id, id_auditory, id_group, id_day, id_time FROM schedule "
+                    "INNER JOIN auditory on auditory.id = id_auditory "
+                    "INNER JOIN group_ on group_.id = id_group "
+                    "INNER JOIN day on day.id = id_day "
+                    "INNER JOIN time_ on time_.id = id_time "
+                    "ORDER BY auditory, group_, day, week;", SQL_NTS);
+    retcode = SQLBindCol(hstmt, 7, SQL_C_SLONG, &id, sizeof(id), NULL);
+    retcode = SQLBindCol(hstmt, 8, SQL_C_SLONG, &id_auditory, sizeof(id_auditory), NULL);
+    retcode = SQLBindCol(hstmt, 9, SQL_C_SLONG, &id_group, sizeof(id_group), NULL);
+    retcode = SQLBindCol(hstmt, 10, SQL_C_SLONG, &id_day, sizeof(id_day), NULL);
+    retcode = SQLBindCol(hstmt, 11, SQL_C_SLONG, &id_time, sizeof(id_time), NULL);
 
     for (int i = 0, j = 0; ; i++) {
         retcode = SQLFetch(hstmt);
         if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
             cout << "Error" << endl;
         if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-            if (id_auditory != temp_id && id_group != temp_id && id_week != temp_id &&
-                id_day != temp_id && id_time != temp_id) {
-                temp_id = id_auditory;
+            if (id_auditory != temp_id_auditory || id_group != temp_id_group ||
+                id_day != temp_id_day || id_time != temp_id_time) {
+                temp_id_auditory = id_auditory;
+                temp_id_group = id_group;
+                temp_id_day = id_day;
+                temp_id_time = id_time;
+
                 idList.push_back(vector<int>());
                 if (firstSchedule) {
                     idList[j].push_back(id);
@@ -787,17 +832,17 @@ void ScheduleDataMapper::createTables() {
     retcode = SQLPrepare(hstmt,
         (SQLWCHAR*)L"create table if not exists auditory ("
                     "id serial primary key,"
-                    "auditory int unique"
+                    "auditory varchar(15) unique"
                     "); ", SQL_NTS);
     retcode = SQLExecute(hstmt);
     retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
 
-    for (int i = 1, auditoryNumber = 0; i <= 160; i++) {
+    /*for (int i = 1, auditoryNumber = 0; i <= 160; i++) {
         auditoryNumber = ceil((double)i / 20) * 100 + (i % 20 == 0 ? 20 : i % 20);
         retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &auditoryNumber, 0, NULL);
         retcode = SQLExecDirect(hstmt, (SQLWCHAR*)L"INSERT INTO auditory(auditory) VALUES(?);", SQL_NTS);
         retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
-    }
+    }*/
 
     retcode = SQLPrepare(hstmt,
         (SQLWCHAR*)L"create table if not exists group_ ("
@@ -807,8 +852,7 @@ void ScheduleDataMapper::createTables() {
     retcode = SQLExecute(hstmt);
     retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
 
-
-    retcode = SQLPrepare(hstmt,
+    /*retcode = SQLPrepare(hstmt,
         (SQLWCHAR*)L"create table if not exists week ("
                     "id serial primary key,"
                     "week int unique"
@@ -820,7 +864,7 @@ void ScheduleDataMapper::createTables() {
         retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &i, 0, NULL);
         retcode = SQLExecDirect(hstmt, (SQLWCHAR*)L"INSERT INTO week(week) VALUES(?);", SQL_NTS);
         retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
-    }
+    }*/
 
     retcode = SQLExecDirect(hstmt,
         (SQLWCHAR*)L"create table if not exists day ("
@@ -836,30 +880,30 @@ void ScheduleDataMapper::createTables() {
     retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
 
     retcode = SQLPrepare(hstmt,
-        (SQLWCHAR*)L"create table if not exists time ("
+        (SQLWCHAR*)L"create table if not exists time_ ("
                     "id serial primary key,"
                     "start_time time,"
                     "end_time time,"
                     "unique(start_time, end_time));"
-                    "INSERT INTO time(start_time, end_time) VALUES('8:30', '10:00');"
-                    "INSERT INTO time(start_time, end_time) VALUES('10:15', '11:45');"
-                    "INSERT INTO time(start_time, end_time) VALUES('12:00', '13:30');"
-                    "INSERT INTO time(start_time, end_time) VALUES('14:00', '15:30');"
-                    "INSERT INTO time(start_time, end_time) VALUES('15:45', '17:15');"
-                    "INSERT INTO time(start_time, end_time) VALUES('17:30', '19:00');"
-                    "INSERT INTO time(start_time, end_time) VALUES('19:15', '20:45');", SQL_NTS);
+                    "INSERT INTO time_(start_time, end_time) VALUES('8:30', '10:00');"
+                    "INSERT INTO time_(start_time, end_time) VALUES('10:15', '11:45');"
+                    "INSERT INTO time_(start_time, end_time) VALUES('12:00', '13:30');"
+                    "INSERT INTO time_(start_time, end_time) VALUES('14:00', '15:30');"
+                    "INSERT INTO time_(start_time, end_time) VALUES('15:45', '17:15');"
+                    "INSERT INTO time_(start_time, end_time) VALUES('17:30', '19:00');"
+                    "INSERT INTO time_(start_time, end_time) VALUES('19:15', '20:45');", SQL_NTS);
     retcode = SQLExecute(hstmt);
     retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
 
     retcode = SQLPrepare(hstmt,
-        (SQLWCHAR*)L"create table if not exists schedule ("
-        "id serial primary key,"
-        "id_Auditory int references auditory(id) on update cascade on delete cascade,"
-        "id_Group int references group_(id) on update cascade on delete cascade,"
-        "id_Week int references week(id) on update cascade on delete cascade,"
-        "id_Day int references day(id) on update cascade on delete cascade,"
-        "id_Time int references time(id) on update cascade on delete cascade"
-        "); ", SQL_NTS);
+        (SQLWCHAR*)L"CREATE TABLE IF NOT EXISTS schedule ("
+                    "id serial primary key,"
+                    "id_Auditory int references auditory(id) on update cascade on delete cascade,"
+                    "id_Group int references group_(id) on update cascade on delete cascade,"
+                    "week int CHECK (week >= 1 AND week <= 18), "
+                    "id_Day int references day(id) on update cascade on delete cascade,"
+                    "id_Time int references time_(id) on update cascade on delete cascade,"
+                    "unique(id_Auditory, week, id_Day, id_Time)); ", SQL_NTS);
     retcode = SQLExecute(hstmt);
     retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
 }

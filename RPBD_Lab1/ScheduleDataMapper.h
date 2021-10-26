@@ -20,8 +20,9 @@ public:
 
     bool insert(Schedule schedule);
     void showAll();
-    void showAllGroups();
     void showByGroup(string choice);
+    void showAllGroups();
+    void showAllAuditories();
     bool fullEdit(int number, Schedule schedule);
     bool edit(int number, Schedule schedule);
     bool remove(int number);
