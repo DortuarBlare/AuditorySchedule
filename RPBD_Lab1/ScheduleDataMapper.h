@@ -18,14 +18,18 @@ public:
     ScheduleDataMapper();
     ~ScheduleDataMapper();
 
-    bool insert(Schedule schedule);
+    bool insertSchedule(Schedule schedule);
+    bool insertAuditory(string auditoryChoice);
+    bool insertGroup(string groupChoice);
     void showAll();
     void showByGroup(string choice);
     void showAllGroups();
     void showAllAuditories();
     bool fullEdit(int number, Schedule schedule);
     bool edit(int number, Schedule schedule);
-    bool remove(int number);
+    bool removeSchedule(int number);
+    bool removeAuditory(string auditoryChoice);
+    bool removeGroup(string groupChoice);
     void findFreeAuditoryByTime(string timeChoice);
     void findFreeAuditoryByNumberOfHours(int numberOfHoursChoice, int weekNumber);
     void createTables();

@@ -74,10 +74,48 @@ void printMenu(int width) {
     for (int i = 1; i <= width - 2; i++) cout << ' ';
     cout << '|' << endl;
 
-    currentString = "2) Добавить расписание";
+    currentString = "2) Добавить";
     cout << '|'; printedSymbolsInRow++;
     for (int i = 1; i <= symbolsToPrint; i++, printedSymbolsInRow++)
         cout << ' ';
+    cout << currentString;
+    printedSymbolsInRow += currentString.length();
+    for (int i = 1; i < width - printedSymbolsInRow; i++) cout << ' ';
+    printedSymbolsInRow = 0;
+    cout << '|' << endl;
+
+    cout << '|'; printedSymbolsInRow++;
+    for (int i = 1; i <= symbolsToPrint; i++, printedSymbolsInRow++)
+        cout << ' ';
+    cout << " \\"; printedSymbolsInRow += 2;
+    for (int i = 1; i < width - printedSymbolsInRow; i++) cout << ' ';
+    printedSymbolsInRow = 0;
+    cout << '|' << endl;
+
+    cout << '|'; printedSymbolsInRow++;
+    for (int i = 1; i <= symbolsToPrint; i++, printedSymbolsInRow++)
+        cout << ' ';
+    currentString = "  а) расписание";
+    cout << currentString;
+    printedSymbolsInRow += currentString.length();
+    for (int i = 1; i < width - printedSymbolsInRow; i++) cout << ' ';
+    printedSymbolsInRow = 0;
+    cout << '|' << endl;
+
+    cout << '|'; printedSymbolsInRow++;
+    for (int i = 1; i <= symbolsToPrint; i++, printedSymbolsInRow++)
+        cout << ' ';
+    currentString = "  б) аудиторию";
+    cout << currentString;
+    printedSymbolsInRow += currentString.length();
+    for (int i = 1; i < width - printedSymbolsInRow; i++) cout << ' ';
+    printedSymbolsInRow = 0;
+    cout << '|' << endl;
+
+    cout << '|'; printedSymbolsInRow++;
+    for (int i = 1; i <= symbolsToPrint; i++, printedSymbolsInRow++)
+        cout << ' ';
+    currentString = "  в) группу";
     cout << currentString;
     printedSymbolsInRow += currentString.length();
     for (int i = 1; i < width - printedSymbolsInRow; i++) cout << ' ';
@@ -160,10 +198,48 @@ void printMenu(int width) {
     for (int i = 1; i <= width - 2; i++) cout << ' ';
     cout << '|' << endl;
 
-    currentString = "4) Удалить расписание";
+    currentString = "4) Удалить";
     cout << '|'; printedSymbolsInRow++;
     for (int i = 1; i <= symbolsToPrint; i++, printedSymbolsInRow++)
         cout << ' ';
+    cout << currentString;
+    printedSymbolsInRow += currentString.length();
+    for (int i = 1; i < width - printedSymbolsInRow; i++) cout << ' ';
+    printedSymbolsInRow = 0;
+    cout << '|' << endl;
+
+    cout << '|'; printedSymbolsInRow++;
+    for (int i = 1; i <= symbolsToPrint; i++, printedSymbolsInRow++)
+        cout << ' ';
+    cout << " \\"; printedSymbolsInRow += 2;
+    for (int i = 1; i < width - printedSymbolsInRow; i++) cout << ' ';
+    printedSymbolsInRow = 0;
+    cout << '|' << endl;
+
+    cout << '|'; printedSymbolsInRow++;
+    for (int i = 1; i <= symbolsToPrint; i++, printedSymbolsInRow++)
+        cout << ' ';
+    currentString = "  а) расписание";
+    cout << currentString;
+    printedSymbolsInRow += currentString.length();
+    for (int i = 1; i < width - printedSymbolsInRow; i++) cout << ' ';
+    printedSymbolsInRow = 0;
+    cout << '|' << endl;
+
+    cout << '|'; printedSymbolsInRow++;
+    for (int i = 1; i <= symbolsToPrint; i++, printedSymbolsInRow++)
+        cout << ' ';
+    currentString = "  б) аудиторию";
+    cout << currentString;
+    printedSymbolsInRow += currentString.length();
+    for (int i = 1; i < width - printedSymbolsInRow; i++) cout << ' ';
+    printedSymbolsInRow = 0;
+    cout << '|' << endl;
+
+    cout << '|'; printedSymbolsInRow++;
+    for (int i = 1; i <= symbolsToPrint; i++, printedSymbolsInRow++)
+        cout << ' ';
+    currentString = "  в) группу";
     cout << currentString;
     printedSymbolsInRow += currentString.length();
     for (int i = 1; i < width - printedSymbolsInRow; i++) cout << ' ';
@@ -260,9 +336,28 @@ int main() {
             }
             break;
         case 2:
-            cin >> tempSchedule;
-            if (dataMapper.insert(tempSchedule)) cout << "Вставка прошла успешно :)" << endl;
-            else cout << "Что-то пошло не так, проверьте правильность ввода данных :(" << endl;
+            cin >> charChoice;
+            switch (charChoice) {
+            case 'а':
+                cin >> tempSchedule;
+                if (dataMapper.insertSchedule(tempSchedule)) cout << "Вставка прошла успешно :)" << endl;
+                else cout << "Что-то пошло не так, проверьте правильность ввода данных :(" << endl;
+                break;
+            case 'б':
+                cout << "Введите аудиторию: ";
+                cin >> stringChoice;
+                if (dataMapper.insertAuditory(stringChoice)) cout << "Вставка прошла успешно :)" << endl;
+                else cout << "Что-то пошло не так, проверьте правильность ввода данных :(" << endl;
+                break;
+            case 'в':
+                cout << "Введите группу: ";
+                cin >> stringChoice;
+                if (dataMapper.insertGroup(stringChoice)) cout << "Вставка прошла успешно :)" << endl;
+                else cout << "Что-то пошло не так, проверьте правильность ввода данных :(" << endl;
+                break;
+            default:
+                break;
+            }
             break;
         case 3:
             cin >> charChoice;
@@ -315,10 +410,29 @@ int main() {
             }
             break;
         case 4:
-            cout << "Введите порядковый номер расписания: ";
-            cin >> choice;
-            if (dataMapper.remove(choice)) cout << "Удаление прошло успешно :)" << endl;
-            else cout << "Что-то пошло не так, проверьте правильность ввода данных :(" << endl;
+            cin >> charChoice;
+            switch (charChoice) {
+            case 'а':
+                cout << "Введите порядковый номер расписания для удаления: ";
+                cin >> choice;
+                if (dataMapper.removeSchedule(choice)) cout << "Удаление прошло успешно :)" << endl;
+                else cout << "Что-то пошло не так, проверьте правильность ввода данных :(" << endl;
+                break;
+            case 'б':
+                cout << "Введите аудиторию для удаления: ";
+                cin >> stringChoice;
+                if (dataMapper.removeAuditory(stringChoice)) cout << "Удаление прошло успешно :)" << endl;
+                else cout << "Что-то пошло не так, проверьте правильность ввода данных :(" << endl;
+                break;
+            case 'в':
+                cout << "Введите группу для удаления: ";
+                cin >> stringChoice;
+                if (dataMapper.removeGroup(stringChoice)) cout << "Удаление прошло успешно :)" << endl;
+                else cout << "Что-то пошло не так, проверьте правильность ввода данных :(" << endl;
+                break;
+            default:
+                break;
+            }
             break;
         case 5:
             cout << "Введите время: ";
