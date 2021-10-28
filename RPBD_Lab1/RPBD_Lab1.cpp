@@ -53,7 +53,7 @@ void printMenu(int width) {
     cout << '|'; printedSymbolsInRow++;
     for (int i = 1; i <= symbolsToPrint; i++, printedSymbolsInRow++)
         cout << ' ';
-    currentString = "  в) все группы";
+    currentString = "  в) все аудитории";
     cout << currentString;
     printedSymbolsInRow += currentString.length();
     for (int i = 1; i < width - printedSymbolsInRow; i++) cout << ' ';
@@ -63,7 +63,7 @@ void printMenu(int width) {
     cout << '|'; printedSymbolsInRow++;
     for (int i = 1; i <= symbolsToPrint; i++, printedSymbolsInRow++)
         cout << ' ';
-    currentString = "  г) все аудитории";
+    currentString = "  г) все группы";
     cout << currentString;
     printedSymbolsInRow += currentString.length();
     for (int i = 1; i < width - printedSymbolsInRow; i++) cout << ' ';
@@ -326,10 +326,10 @@ int main() {
                 dataMapper.showByGroup(stringChoice);
                 break;
             case 'в':
-                dataMapper.showAllGroups();
+                dataMapper.showAllAuditories();
                 break;
             case 'г':
-                dataMapper.showAllAuditories();
+                dataMapper.showAllGroups();
                 break;
             default:
                 break;
