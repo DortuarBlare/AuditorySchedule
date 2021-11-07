@@ -6,7 +6,7 @@ using namespace std;
 class Schedule {
 private:
 	int id; // Идентификационный номер
-	int auditory; // Номер аудитории
+	string auditory; // Номер аудитории
 	string week; // Неделя занятости аудитории
 	string group; // Группа, которой занята аудитория
 	string day; // День занятости аудитории
@@ -14,8 +14,8 @@ private:
 
 public:
 	Schedule();
-	Schedule(int id, int auditory, string group, string week, string day, string time);
-	Schedule(int auditory, string group, string week, string day, string time);
+	Schedule(int id, string auditory, string group, string week, string day, string time);
+	Schedule(string auditory, string group, string week, string day, string time);
 	Schedule(const Schedule& forCopy);
 
 	void print();
@@ -26,8 +26,8 @@ public:
 
 	void setId(int id);
 	int getId();
-	void setAuditoryNumber(int classroomNumber);
-	int getAuditoryNumber();
+	void setAuditory(string classroomNumber);
+	string getAuditory();
 	void setWeek(string week);
 	string getWeek();
 	void setGroup(string group);
