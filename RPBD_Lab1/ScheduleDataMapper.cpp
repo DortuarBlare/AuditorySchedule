@@ -327,7 +327,7 @@ void ScheduleDataMapper::showAllAuditories() {
     char auditory[20] = "";
 
     retcode = SQLExecDirect(hstmt, (SQLWCHAR*)L"SELECT auditory FROM auditory ORDER BY auditory;", SQL_NTS);
-    retcode = SQLBindCol(hstmt, 1, SQL_C_CHAR, auditory, 20, NULL);
+    retcode = SQLBindCol(hstmt, 2, SQL_C_CHAR, auditory, 20, NULL);
     cout << endl << "Все аудитории: " << endl;
 
     for (int i = 0; ; i++) {
@@ -415,6 +415,13 @@ bool ScheduleDataMapper::edit(int number, Schedule schedule) {
     if (schedule.getAuditory() != "...") {
         fieldToEdit = 1;
         strcpy_s((char*)auditory, strlen(schedule.getAuditory().c_str()) + 1, schedule.getAuditory().c_str());
+
+        // Вставляем аудиторию в таблицу аудиторий, если её нет
+        retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, auditory, 0, NULL);
+        retcode = SQLExecDirect(hstmt, (SQLWCHAR*)L"INSERT INTO auditory(auditory) VALUES(?);", SQL_NTS);
+        retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
+        retcode = SQLFreeStmt(hstmt, SQL_UNBIND);
+
         retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, auditory, 0, NULL);
         retcode = SQLExecDirect(hstmt, (SQLWCHAR*)L"SELECT id FROM auditory WHERE auditory = ?; ", SQL_NTS);
         retcode = SQLBindCol(hstmt, 1, SQL_C_SLONG, &id_auditory, sizeof(id_auditory), NULL);
@@ -425,6 +432,13 @@ bool ScheduleDataMapper::edit(int number, Schedule schedule) {
     else if (schedule.getGroup() != "...") {
         fieldToEdit = 2;
         strcpy_s((char*)group, strlen(schedule.getGroup().c_str()) + 1, schedule.getGroup().c_str());
+
+        // Вставляем группу в таблицу групп, если её нет
+        retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, group, 0, NULL);
+        retcode = SQLExecDirect(hstmt, (SQLWCHAR*)L"INSERT INTO group_(group_) VALUES(?);", SQL_NTS);
+        retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
+        retcode = SQLFreeStmt(hstmt, SQL_UNBIND);
+
         retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, group, 0, NULL);
         retcode = SQLExecDirect(hstmt, (SQLWCHAR*)L"SELECT id FROM group_ WHERE group_ = ?; ", SQL_NTS);
         retcode = SQLBindCol(hstmt, 1, SQL_C_SLONG, &id_group, sizeof(id_group), NULL);
@@ -501,6 +515,37 @@ bool ScheduleDataMapper::edit(int number, Schedule schedule) {
 
     idList.clear();
     idList.shrink_to_fit();
+    return true;
+}
+
+bool ScheduleDataMapper::editAuditory(string oldAuditory, string newAuditory) {
+    SQLWCHAR _oldAuditory[20];
+    SQLWCHAR _newAuditory[20];
+
+    strcpy_s((char*)_newAuditory, strlen(newAuditory.c_str()) + 1, newAuditory.c_str());
+    strcpy_s((char*)_oldAuditory, strlen(oldAuditory.c_str()) + 1, oldAuditory.c_str());
+
+    retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, _newAuditory, 0, NULL);
+    retcode = SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, _oldAuditory, 0, NULL);
+    retcode = SQLExecDirect(hstmt, (SQLWCHAR*)L"UPDATE auditory SET auditory = ? WHERE auditory = ?;", SQL_NTS);
+    retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
+    retcode = SQLFreeStmt(hstmt, SQL_RESET_PARAMS);
+
+    return true;
+}
+
+bool ScheduleDataMapper::editGroup(string oldGroup, string newGroup) {
+    SQLWCHAR _oldGroup[20];
+    SQLWCHAR _newGroup[20];
+
+    strcpy_s((char*)_oldGroup, strlen(oldGroup.c_str()) + 1, oldGroup.c_str());
+    strcpy_s((char*)_newGroup, strlen(newGroup.c_str()) + 1, newGroup.c_str());
+    retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, _newGroup, 0, NULL);
+    retcode = SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, _oldGroup, 0, NULL);
+    retcode = SQLExecDirect(hstmt, (SQLWCHAR*)L"UPDATE group_ SET group_ = ? WHERE group_ = ?;", SQL_NTS);
+    retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
+    retcode = SQLFreeStmt(hstmt, SQL_RESET_PARAMS);
+
     return true;
 }
 

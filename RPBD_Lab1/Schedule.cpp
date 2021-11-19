@@ -2,14 +2,14 @@
 
 Schedule::Schedule() {
 	this->id = -1;
-	this->auditory = "...";
+	this->auditory = new Auditory();
 	this->week = "...";
 	this->group = "...";
 	this->day = "...";
 	this->time = "...";
 }
 
-Schedule::Schedule(int id, string auditory, string group, string week, string day, string time) {
+Schedule::Schedule(int id, Auditory* auditory, string group, string week, string day, string time) {
 	this->id = id;
 	this->auditory = auditory;
 	this->group = group;
@@ -18,7 +18,7 @@ Schedule::Schedule(int id, string auditory, string group, string week, string da
 	this->time = time;
 }
 
-Schedule::Schedule(string auditory, string group, string week, string day, string time) {
+Schedule::Schedule(Auditory* auditory, string group, string week, string day, string time) {
 	this->id = -1;
 	this->auditory = auditory;
 	this->group = group;
@@ -64,6 +64,7 @@ bool Schedule::operator!=(Schedule& forComparison) {
 }
 
 ostream& operator<<(ostream& os, Schedule& outputSchedule) {
+	os << "Id расписания:\t\t" << outputSchedule.id << endl;
 	os << "Аудитория:\t" << outputSchedule.auditory << endl;
 	os << "Группа:\t\t" << outputSchedule.group << endl;
 	os << "Недели:\t\t" << outputSchedule.week << endl;
@@ -74,43 +75,18 @@ ostream& operator<<(ostream& os, Schedule& outputSchedule) {
 
 istream& operator>>(istream& is, Schedule& inputSchedule) {
 	cout << "Аудитория: ";
-	//is >> inputSchedule.auditory;
 	is.ignore();
-	getline(is, inputSchedule.auditory);
+	//getline(is, inputSchedule.auditory);
+	cin >> inputSchedule.auditory;
 	cout << "Группа: ";
-	//is >> inputSchedule.group;
 	getline(is, inputSchedule.group);
 	cout << "Недели: ";
-	//is >> inputSchedule.week;
 	getline(is, inputSchedule.week);
 	cout << "День: ";
-	//is >> inputSchedule.day;
 	getline(is, inputSchedule.day);
 	cout << "Время: ";
-	//is >> inputSchedule.time;
 	getline(is, inputSchedule.time);
 	return is;
-	
-	/*cout << "Аудитория: ";
-	is >> inputSchedule.auditory;
-	while (is.fail()) {
-		is.clear();
-		is.ignore(32767, '\n');
-		is >> inputSchedule.auditory;
-	}
-	cout << "Группа: ";
-	is.ignore();
-	getline(is, inputSchedule.group);
-	cout << "Недели: ";
-	is.ignore();
-	getline(is, inputSchedule.week);
-	cout << "День: ";
-	is.ignore();
-	getline(is, inputSchedule.day);
-	cout << "Время: ";
-	is.ignore();
-	getline(is, inputSchedule.time);
-	return is;*/
 }
 
 void Schedule::setId(int id) {

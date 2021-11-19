@@ -1,4 +1,5 @@
 #pragma once
+#include "Auditory.h"
 #include <iostream>
 #include <string>
 using namespace std;
@@ -6,7 +7,7 @@ using namespace std;
 class Schedule {
 private:
 	int id; // Идентификационный номер
-	string auditory; // Номер аудитории
+	Auditory* auditory; // Номер аудитории
 	string week; // Неделя занятости аудитории
 	string group; // Группа, которой занята аудитория
 	string day; // День занятости аудитории
@@ -14,8 +15,8 @@ private:
 
 public:
 	Schedule();
-	Schedule(int id, string auditory, string group, string week, string day, string time);
-	Schedule(string auditory, string group, string week, string day, string time);
+	Schedule(int id, Auditory* auditory, string group, string week, string day, string time);
+	Schedule(Auditory* auditory, string group, string week, string day, string time);
 	Schedule(const Schedule& forCopy);
 
 	void print();
@@ -24,16 +25,21 @@ public:
 	friend ostream& operator<<(ostream& os, Schedule& outputSchedule);
 	friend istream& operator>>(istream& is, Schedule& inputSchedule);
 
-	void setId(int id);
 	int getId();
-	void setAuditory(string classroomNumber);
+	void setId(int id);
+
 	string getAuditory();
-	void setWeek(string week);
+	void setAuditory(string classroomNumber);
+
 	string getWeek();
-	void setGroup(string group);
+	void setWeek(string week);
+
 	string getGroup();
-	void setDay(string day);
+	void setGroup(string group);
+
 	string getDay();
-	void setTime(string time);
+	void setDay(string day);
+
 	string getTime();
+	void setTime(string time);
 };

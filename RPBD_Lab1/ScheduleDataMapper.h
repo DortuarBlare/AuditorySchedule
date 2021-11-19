@@ -27,6 +27,8 @@ public:
     void showAllAuditories();
     bool fullEdit(int number, Schedule schedule);
     bool edit(int number, Schedule schedule);
+    bool editAuditory(string number, string newAuditory);
+    bool editGroup(string oldGroup, string newGroup);
     bool removeSchedule(int number);
     bool removeAuditory(string auditoryChoice);
     bool removeGroup(string groupChoice);

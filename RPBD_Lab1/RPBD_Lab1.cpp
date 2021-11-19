@@ -2,6 +2,7 @@
 #include <odbcinst.h>
 #include <sqlext.h>
 #include "Schedule.h"
+#include "ScheduleTable.h"
 #include "ScheduleDataMapper.h"
 #include <iostream>
 using namespace std;
@@ -126,7 +127,7 @@ void printMenu(int width) {
     for (int i = 1; i <= width - 2; i++) cout << ' ';
     cout << '|' << endl;
 
-    currentString = "3) Редактировать в расписании";
+    currentString = "3) Редактировать";
     cout << '|'; printedSymbolsInRow++;
     for (int i = 1; i <= symbolsToPrint; i++, printedSymbolsInRow++)
         cout << ' ';
@@ -147,7 +148,7 @@ void printMenu(int width) {
     cout << '|'; printedSymbolsInRow++;
     for (int i = 1; i <= symbolsToPrint; i++, printedSymbolsInRow++)
         cout << ' ';
-    currentString = "  а) все поля";
+    currentString = "  а) все поля в расписании";
     cout << currentString;
     printedSymbolsInRow += currentString.length();
     for (int i = 1; i < width - printedSymbolsInRow; i++) cout << ' ';
@@ -157,7 +158,7 @@ void printMenu(int width) {
     cout << '|'; printedSymbolsInRow++;
     for (int i = 1; i <= symbolsToPrint; i++, printedSymbolsInRow++)
         cout << ' ';
-    currentString = "  б) аудиторию";
+    currentString = "  б) аудиторию в расписании";
     cout << currentString;
     printedSymbolsInRow += currentString.length();
     for (int i = 1; i < width - printedSymbolsInRow; i++) cout << ' ';
@@ -167,7 +168,7 @@ void printMenu(int width) {
     cout << '|'; printedSymbolsInRow++;
     for (int i = 1; i <= symbolsToPrint; i++, printedSymbolsInRow++)
         cout << ' ';
-    currentString = "  в) группу";
+    currentString = "  в) группу в расписании";
     cout << currentString;
     printedSymbolsInRow += currentString.length();
     for (int i = 1; i < width - printedSymbolsInRow; i++) cout << ' ';
@@ -177,7 +178,7 @@ void printMenu(int width) {
     cout << '|'; printedSymbolsInRow++;
     for (int i = 1; i <= symbolsToPrint; i++, printedSymbolsInRow++)
         cout << ' ';
-    currentString = "  г) день недели";
+    currentString = "  г) день недели в расписании";
     cout << currentString;
     printedSymbolsInRow += currentString.length();
     for (int i = 1; i < width - printedSymbolsInRow; i++) cout << ' ';
@@ -187,7 +188,27 @@ void printMenu(int width) {
     cout << '|'; printedSymbolsInRow++;
     for (int i = 1; i <= symbolsToPrint; i++, printedSymbolsInRow++)
         cout << ' ';
-    currentString = "  д) время";
+    currentString = "  д) время в расписании";
+    cout << currentString;
+    printedSymbolsInRow += currentString.length();
+    for (int i = 1; i < width - printedSymbolsInRow; i++) cout << ' ';
+    printedSymbolsInRow = 0;
+    cout << '|' << endl;
+
+    cout << '|'; printedSymbolsInRow++;
+    for (int i = 1; i <= symbolsToPrint; i++, printedSymbolsInRow++)
+        cout << ' ';
+    currentString = "  е) аудиторию";
+    cout << currentString;
+    printedSymbolsInRow += currentString.length();
+    for (int i = 1; i < width - printedSymbolsInRow; i++) cout << ' ';
+    printedSymbolsInRow = 0;
+    cout << '|' << endl;
+
+    cout << '|'; printedSymbolsInRow++;
+    for (int i = 1; i <= symbolsToPrint; i++, printedSymbolsInRow++)
+        cout << ' ';
+    currentString = "  ж) группу";
     cout << currentString;
     printedSymbolsInRow += currentString.length();
     for (int i = 1; i < width - printedSymbolsInRow; i++) cout << ' ';
@@ -301,6 +322,7 @@ int main() {
     HANDLE hWndConsole{};
     CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
     ScheduleDataMapper dataMapper;
+    ScheduleTable scheduleTable;
     Schedule tempSchedule;
     string stringChoice;
     int choice;
@@ -405,6 +427,26 @@ int main() {
                     cout << "Редактирование прошло успешно :)" << endl;
                 else cout << "Что-то пошло не так, проверьте правильность ввода данных :(" << endl;
                 break;
+            case 'е':
+                cout << "Введите порядковый номер аудитории: ";
+                cin >> choice;
+                cout << "Введите новую аудиторию: ";
+                cin >> stringChoice;
+                if (dataMapper.editAuditory(choice, stringChoice))
+                    cout << "Редактирование прошло успешно :)" << endl;
+                else cout << "Что-то пошло не так, проверьте правильность ввода данных :(" << endl;
+                break;
+            case 'ж': {
+                string oldGroup;
+                cout << "Введите старую группу: ";
+                cin >> oldGroup;
+                cout << "Введите новую группу: ";
+                cin >> stringChoice;
+                if (dataMapper.editGroup(oldGroup, stringChoice))
+                    cout << "Редактирование прошло успешно :)" << endl;
+                else cout << "Что-то пошло не так, проверьте правильность ввода данных :(" << endl;
+                break;
+            }
             default:
                 break;
             }
