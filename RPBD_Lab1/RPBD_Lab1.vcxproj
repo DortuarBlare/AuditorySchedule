@@ -20,16 +20,20 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Auditory.cpp" />
+    <ClCompile Include="Group.cpp" />
     <ClCompile Include="RPBD_Lab1.cpp" />
     <ClCompile Include="Schedule.cpp" />
     <ClCompile Include="ScheduleDataMapper.cpp" />
     <ClCompile Include="ScheduleTable.cpp" />
+    <ClCompile Include="Time.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Auditory.h" />
+    <ClInclude Include="Group.h" />
     <ClInclude Include="Schedule.h" />
     <ClInclude Include="ScheduleDataMapper.h" />
     <ClInclude Include="ScheduleTable.h" />
+    <ClInclude Include="Time.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

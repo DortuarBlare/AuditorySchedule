@@ -11,52 +11,24 @@ ScheduleDataMapper::~ScheduleDataMapper() {
 
 bool ScheduleDataMapper::insertSchedule(Schedule schedule) {
     SQLWCHAR auditory[20];
-    SQLINTEGER weeks[20];
+    SQLINTEGER week = schedule.getWeek();
     SQLWCHAR group[20];
     SQLWCHAR day[20];
     SQLWCHAR startTime[20];
     SQLWCHAR endTime[20];
-    string _startTime, _endTime;
     bool foundStartTime = false;
     SQLINTEGER id_auditory = 0, id_group = 0, id_week = 0, id_day = 0, id_time = 0;
 
-    strcpy_s((char*)auditory, strlen(schedule.getAuditory().c_str()) + 1, schedule.getAuditory().c_str());
-    strcpy_s((char*)group, strlen(schedule.getGroup().c_str()) + 1, schedule.getGroup().c_str());
+    strcpy_s((char*)auditory, strlen(schedule.getAuditory()->getAuditory().c_str()) + 1,
+        schedule.getAuditory()->getAuditory().c_str());
+    strcpy_s((char*)group, strlen(schedule.getGroup()->getGroup().c_str()) + 1,
+        schedule.getGroup()->getGroup().c_str());
     strcpy_s((char*)day, strlen(schedule.getDay().c_str()) + 1, schedule.getDay().c_str());
 
-    for (int i = 0; i < schedule.getTime().length(); i++) {
-        if (!foundStartTime && schedule.getTime()[i] != ' ' &&
-            schedule.getTime()[i] != '-' && schedule.getTime()[i] != '\0') {
-            _startTime += schedule.getTime()[i];
-            if (schedule.getTime()[i + 1] == ' ' ||
-                schedule.getTime()[i + 1] == '-' || schedule.getTime()[i + 1] == '\0')
-                foundStartTime = true;
-        }
-        else if (schedule.getTime()[i] != ' ' &&
-            schedule.getTime()[i] != '-' && schedule.getTime()[i] != '\0') {
-            _endTime += schedule.getTime()[i];
-        }
-    }
-
-    strcpy_s((char*)startTime, strlen(_startTime.c_str()) + 1, _startTime.c_str());
-    strcpy_s((char*)endTime, strlen(_endTime.c_str()) + 1, _endTime.c_str());
-
-    int amountOfWeeks = 0;
-    string temp;
-    for (int i = 0, j = 0; i < schedule.getWeek().size(); i++) {
-        if (schedule.getWeek()[i] != ' ' &&
-            schedule.getWeek()[i] != '-' && schedule.getWeek()[i] != '\0')
-            temp += schedule.getWeek()[i];
-        else {
-            weeks[amountOfWeeks++] = atoi(temp.c_str());
-            temp.clear();
-        }
-
-        if (i == schedule.getWeek().size() - 1 && !temp.empty()) {
-            weeks[amountOfWeeks++] = atoi(temp.c_str());
-            temp.clear();
-        }
-    }
+    strcpy_s((char*)startTime, strlen(schedule.getTime()->getStartTime().c_str()) + 1,
+        schedule.getTime()->getStartTime().c_str());
+    strcpy_s((char*)endTime, strlen(schedule.getTime()->getEndTime().c_str()) + 1,
+        schedule.getTime()->getEndTime().c_str());
 
     retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, auditory, 0, NULL);
     retcode = SQLExecDirect(hstmt, (SQLWCHAR*)L"INSERT INTO auditory(auditory) VALUES (?);", SQL_NTS);
@@ -96,7 +68,7 @@ bool ScheduleDataMapper::insertSchedule(Schedule schedule) {
     retcode = SQLFetch(hstmt);
     retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
 
-    for (int i = 0; i < amountOfWeeks; i++) {
+    /*for (int i = 0; i < amountOfWeeks; i++) {
         retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &id_auditory, 0, NULL);
         retcode = SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &id_group, 0, NULL);
         retcode = SQLBindParameter(hstmt, 3, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &weeks[i], 0, NULL);
@@ -109,6 +81,18 @@ bool ScheduleDataMapper::insertSchedule(Schedule schedule) {
             retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
             return false;
         }
+    }*/
+    retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &id_auditory, 0, NULL);
+    retcode = SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &id_group, 0, NULL);
+    retcode = SQLBindParameter(hstmt, 3, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &week, 0, NULL);
+    retcode = SQLBindParameter(hstmt, 4, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &id_day, 0, NULL);
+    retcode = SQLBindParameter(hstmt, 5, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, &id_time, 0, NULL);
+    retcode = SQLExecDirect(hstmt,
+        (SQLWCHAR*)L"INSERT INTO schedule(id_auditory, id_group, week, id_day, id_time)"
+        "VALUES (?, ?, ?, ?, ?);", SQL_NTS);
+    if (retcode < 0) {
+        retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
+        return false;
     }
 
     retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
@@ -327,7 +311,7 @@ void ScheduleDataMapper::showAllAuditories() {
     char auditory[20] = "";
 
     retcode = SQLExecDirect(hstmt, (SQLWCHAR*)L"SELECT auditory FROM auditory ORDER BY auditory;", SQL_NTS);
-    retcode = SQLBindCol(hstmt, 2, SQL_C_CHAR, auditory, 20, NULL);
+    retcode = SQLBindCol(hstmt, 1, SQL_C_CHAR, auditory, 20, NULL);
     cout << endl << "Все аудитории: " << endl;
 
     for (int i = 0; ; i++) {
@@ -412,9 +396,9 @@ bool ScheduleDataMapper::edit(int number, Schedule schedule) {
     if (number < 1 || number > idList.size())
         return false;
 
-    if (schedule.getAuditory() != "...") {
+    if (schedule.getAuditory()->getAuditory() != "...") {
         fieldToEdit = 1;
-        strcpy_s((char*)auditory, strlen(schedule.getAuditory().c_str()) + 1, schedule.getAuditory().c_str());
+        strcpy_s((char*)auditory, strlen(schedule.getAuditory()->getAuditory().c_str()) + 1, schedule.getAuditory()->getAuditory().c_str());
 
         // Вставляем аудиторию в таблицу аудиторий, если её нет
         retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, auditory, 0, NULL);
@@ -429,9 +413,10 @@ bool ScheduleDataMapper::edit(int number, Schedule schedule) {
         retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
         retcode = SQLFreeStmt(hstmt, SQL_UNBIND);
     }
-    else if (schedule.getGroup() != "...") {
+    else if (schedule.getGroup()->getGroup() != "...") {
         fieldToEdit = 2;
-        strcpy_s((char*)group, strlen(schedule.getGroup().c_str()) + 1, schedule.getGroup().c_str());
+        strcpy_s((char*)group, strlen(schedule.getGroup()->getGroup().c_str()) + 1, 
+            schedule.getGroup()->getGroup().c_str());
 
         // Вставляем группу в таблицу групп, если её нет
         retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, group, 0, NULL);
@@ -456,7 +441,7 @@ bool ScheduleDataMapper::edit(int number, Schedule schedule) {
         retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
         retcode = SQLFreeStmt(hstmt, SQL_UNBIND);
     }
-    else if (schedule.getTime() != "...") {
+    /*else if (schedule.getTime() != "...") {
         fieldToEdit = 5;
         for (int i = 0; i < schedule.getTime().length(); i++) {
             if (!foundStartTime && schedule.getTime()[i] != ' ' &&
@@ -480,7 +465,7 @@ bool ScheduleDataMapper::edit(int number, Schedule schedule) {
         retcode = SQLFetch(hstmt);
         retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
         retcode = SQLFreeStmt(hstmt, SQL_UNBIND);
-    }
+    }*/
 
     for (int i = 0; i < idList[number - 1].size(); i++) {
         SQLINTEGER editNumber = idList[number - 1][i];

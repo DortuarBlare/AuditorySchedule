@@ -1,5 +1,7 @@
 #pragma once
 #include "Auditory.h"
+#include "Group.h"
+#include "Time.h"
 #include <iostream>
 #include <string>
 using namespace std;
@@ -8,16 +10,16 @@ class Schedule {
 private:
 	int id; // Идентификационный номер
 	Auditory* auditory; // Номер аудитории
-	string week; // Неделя занятости аудитории
-	string group; // Группа, которой занята аудитория
+	Group* group; // Группа, которой занята аудитория
+	int week; // Неделя занятости аудитории
 	string day; // День занятости аудитории
-	string time; // Часы занятости аудитории
+	Time* time; // Часы занятости аудитории
 
 public:
 	Schedule();
-	Schedule(int id, Auditory* auditory, string group, string week, string day, string time);
-	Schedule(Auditory* auditory, string group, string week, string day, string time);
+	Schedule(string auditory, string group, int week, string day, string startTime, string endTime);
 	Schedule(const Schedule& forCopy);
+	~Schedule();
 
 	void print();
 	bool operator==(Schedule& forComparison);
@@ -28,18 +30,18 @@ public:
 	int getId();
 	void setId(int id);
 
-	string getAuditory();
-	void setAuditory(string classroomNumber);
+	Auditory* getAuditory();
+	void setAuditory(Auditory* auditory);
 
-	string getWeek();
-	void setWeek(string week);
+	int getWeek();
+	void setWeek(int week);
 
-	string getGroup();
-	void setGroup(string group);
+	Group* getGroup();
+	void setGroup(Group* group);
 
 	string getDay();
 	void setDay(string day);
 
-	string getTime();
-	void setTime(string time);
+	Time* getTime();
+	void setTime(Time* time);
 };

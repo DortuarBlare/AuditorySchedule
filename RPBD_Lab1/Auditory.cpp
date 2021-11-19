@@ -1,7 +1,18 @@
 #include "Auditory.h"
 
 Auditory::Auditory() {
+	this->id = -1;
+	this->auditory = "...";
+}
 
+Auditory::Auditory(string auditory) {
+	this->id = -1;
+	this->auditory = auditory;
+}
+
+Auditory::Auditory(const Auditory& forCopy) {
+	this->id = forCopy.id;
+	this->auditory = forCopy.auditory;
 }
 
 bool Auditory::operator==(Auditory& forComparison) {
@@ -24,7 +35,7 @@ ostream& operator<<(ostream& os, Auditory& output) {
 }
 
 istream& operator>>(istream& is, Auditory& input) {
-	cout << "Аудитория: ";
+	cout << "Введите аудиторию: ";
 	is.ignore();
 	getline(is, input.auditory);
 

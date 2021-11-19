@@ -3,37 +3,42 @@
 Schedule::Schedule() {
 	this->id = -1;
 	this->auditory = new Auditory();
-	this->week = "...";
-	this->group = "...";
+	this->week = -1;
+	this->group = new Group();
 	this->day = "...";
-	this->time = "...";
+	this->time = new Time();
 }
 
-Schedule::Schedule(int id, Auditory* auditory, string group, string week, string day, string time) {
-	this->id = id;
-	this->auditory = auditory;
-	this->group = group;
-	this->week = week;
-	this->day = day;
-	this->time = time;
-}
+//Schedule::Schedule(int id, string auditory, string group, string week, string day, Time time) {
+//	this->id = id;
+//	this->auditory = new Auditory(auditory);
+//	this->group = group;
+//	this->week = week;
+//	this->day = day;
+//	this->time = new Time();
+//}
 
-Schedule::Schedule(Auditory* auditory, string group, string week, string day, string time) {
+Schedule::Schedule(string auditory, string group, int week, string day, string startTime, string endTime) {
 	this->id = -1;
-	this->auditory = auditory;
-	this->group = group;
+	this->auditory = new Auditory(auditory);
+	this->group = new Group(group);
 	this->week = week;
 	this->day = day;
-	this->time = time;
+	this->time = new Time(startTime, endTime);
 }
 
 Schedule::Schedule(const Schedule& forCopy) {
 	this->id = forCopy.id;
-	this->auditory = forCopy.auditory;
-	this->group = forCopy.group;
+	this->auditory = new Auditory(*forCopy.auditory);
+	this->group = new Group(*forCopy.group);
 	this->week = forCopy.week;
 	this->day = forCopy.day;
-	this->time = forCopy.time;
+	this->time = new Time(*forCopy.time);
+}
+
+Schedule::~Schedule() {
+	delete auditory;
+	delete time;
 }
 
 void Schedule::print() {
@@ -65,74 +70,75 @@ bool Schedule::operator!=(Schedule& forComparison) {
 
 ostream& operator<<(ostream& os, Schedule& outputSchedule) {
 	os << "Id расписания:\t\t" << outputSchedule.id << endl;
-	os << "Аудитория:\t" << outputSchedule.auditory << endl;
+	os << "\t" << *outputSchedule.auditory << endl;
 	os << "Группа:\t\t" << outputSchedule.group << endl;
 	os << "Недели:\t\t" << outputSchedule.week << endl;
 	os << "День:\t\t" << outputSchedule.day << endl;
 	os << "Время:\t\t" << outputSchedule.time << endl;
+
 	return os;
 }
 
 istream& operator>>(istream& is, Schedule& inputSchedule) {
-	cout << "Аудитория: ";
-	is.ignore();
-	//getline(is, inputSchedule.auditory);
-	cin >> inputSchedule.auditory;
-	cout << "Группа: ";
-	getline(is, inputSchedule.group);
-	cout << "Недели: ";
-	getline(is, inputSchedule.week);
-	cout << "День: ";
-	getline(is, inputSchedule.day);
-	cout << "Время: ";
-	getline(is, inputSchedule.time);
-	return is;
-}
+	cin >> *inputSchedule.auditory;
 
-void Schedule::setId(int id) {
-	this->id = id;
+	cin >> *inputSchedule.group;
+
+	cout << "Введите неделю: ";
+	cin >> inputSchedule.week;
+
+	cout << "Введите день: ";
+	getline(is, inputSchedule.day);
+
+	cin >> *inputSchedule.time;
+
+	return is;
 }
 
 int Schedule::getId() {
 	return this->id;
 }
 
-void Schedule::setAuditory(string auditory) {
-	this->auditory = auditory;
+void Schedule::setId(int id) {
+	this->id = id;
 }
 
-string Schedule::getAuditory() {
+Auditory* Schedule::getAuditory() {
 	return this->auditory;
 }
 
-void Schedule::setWeek(string week) {
-	this->week = week;
+void Schedule::setAuditory(Auditory* newAuditory) {
+	this->auditory = new Auditory(*newAuditory);
 }
 
-string Schedule::getWeek() {
+int Schedule::getWeek() {
 	return this->week;
 }
 
-void Schedule::setGroup(string group) {
-	this->group = group;
+void Schedule::setWeek(int week) {
+	this->week = week;
 }
 
-string Schedule::getGroup(){
+Group* Schedule::getGroup() {
 	return this->group;
 }
 
-void Schedule::setDay(string day) {
-	this->day = day;
+void Schedule::setGroup(Group* group) {
+	this->group = new Group(*group);
 }
 
 string Schedule::getDay() {
 	return this->day;
 }
 
-void Schedule::setTime(string time) {
-	this->time = time;
+void Schedule::setDay(string day) {
+	this->day = day;
 }
 
-string Schedule::getTime() {
+Time* Schedule::getTime() {
 	return this->time;
+}
+
+void Schedule::setTime(Time* time) {
+	this->time = new Time(*time);
 }

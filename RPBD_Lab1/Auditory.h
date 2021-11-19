@@ -10,6 +10,8 @@ private:
 
 public:
 	Auditory();
+	Auditory(string auditory);
+	Auditory(const Auditory& forCopy);
 
 	bool operator==(Auditory& forComparison);
 	bool operator!=(Auditory& forComparison);
