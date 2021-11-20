@@ -18,6 +18,7 @@ private:
 public:
 	Schedule();
 	Schedule(string auditory, string group, int week, string day, string startTime, string endTime);
+	Schedule(Auditory* auditory, Group* group, int week, string day, Time* time);
 	Schedule(const Schedule& forCopy);
 	~Schedule();
 

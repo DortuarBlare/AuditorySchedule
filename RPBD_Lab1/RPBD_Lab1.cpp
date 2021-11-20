@@ -340,7 +340,8 @@ int main() {
             cin >> charChoice;
             switch (charChoice) {
             case 'а':
-                dataMapper.showAll();
+                //dataMapper.showAll();
+                scheduleTable.showAll();
                 break;
             case 'б':
                 cout << "Введите группу: ";
@@ -349,10 +350,12 @@ int main() {
                 dataMapper.showByGroup(stringChoice);
                 break;
             case 'в':
-                dataMapper.showAllAuditories();
+                //dataMapper.showAllAuditories();
+                scheduleTable.showAllAuditories();
                 break;
             case 'г':
-                dataMapper.showAllGroups();
+                //dataMapper.showAllGroups();
+                scheduleTable.showAllGroups();
                 break;
             default:
                 break;
@@ -384,43 +387,19 @@ int main() {
                 cout << "Введите конечное время: ";
                 cin >> endTime;
 
-                int amountOfWeeks = 0;
-                int weeks[20]{};
-                string temp;
-                for (int i = 0, j = 0; i < week.size(); i++) {
-                    if (week[i] != ' ' && week[i] != '\0')
-                        temp += week[i];
-                    else {
-                        weeks[amountOfWeeks++] = atoi(temp.c_str());
-                        temp.clear();
-                    }
-
-                    if (i == week.size() - 1 && !temp.empty()) {
-                        weeks[amountOfWeeks++] = atoi(temp.c_str());
-                        if (amountOfWeeks >= 18) break;
-                        temp.clear();
-                    }
-                }
-
-                for (int i = 0; i < amountOfWeeks; i++) 
-                    success = dataMapper.insertSchedule(Schedule(auditory, group, weeks[i], day, startTime, endTime));
-
-                if (success) cout << "Вставка прошла успешно :)" << endl;
-                else cout << "Что-то пошло не так, проверьте правильность ввода данных :(" << endl;
+                scheduleTable.insertSchedule(auditory, group, week, day, startTime, endTime);
 
                 break;
             }
             case 'б':
                 cout << "Введите аудиторию: ";
                 cin >> stringChoice;
-                if (dataMapper.insertAuditory(stringChoice)) cout << "Вставка прошла успешно :)" << endl;
-                else cout << "Что-то пошло не так, проверьте правильность ввода данных :(" << endl;
+                scheduleTable.insertAuditory(stringChoice);
                 break;
             case 'в':
                 cout << "Введите группу: ";
                 cin >> stringChoice;
-                if (dataMapper.insertGroup(stringChoice)) cout << "Вставка прошла успешно :)" << endl;
-                else cout << "Что-то пошло не так, проверьте правильность ввода данных :(" << endl;
+                scheduleTable.insertGroup(stringChoice);
                 break;
             default:
                 break;
@@ -502,8 +481,7 @@ int main() {
             case 'а':
                 cout << "Введите порядковый номер расписания для удаления: ";
                 cin >> choice;
-                if (dataMapper.removeSchedule(choice)) cout << "Удаление прошло успешно :)" << endl;
-                else cout << "Что-то пошло не так, проверьте правильность ввода данных :(" << endl;
+                scheduleTable.removeSchedule(choice);
                 break;
             case 'б':
                 cout << "Введите аудиторию для удаления: ";

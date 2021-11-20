@@ -27,6 +27,15 @@ Schedule::Schedule(string auditory, string group, int week, string day, string s
 	this->time = new Time(startTime, endTime);
 }
 
+Schedule::Schedule(Auditory* auditory, Group* group, int week, string day, Time* time) {
+	this->id = -1;
+	this->auditory = auditory;
+	this->group = group;
+	this->week = week;
+	this->day = day;
+	this->time = time;
+}
+
 Schedule::Schedule(const Schedule& forCopy) {
 	this->id = forCopy.id;
 	this->auditory = new Auditory(*forCopy.auditory);
@@ -38,6 +47,7 @@ Schedule::Schedule(const Schedule& forCopy) {
 
 Schedule::~Schedule() {
 	delete auditory;
+	delete group;
 	delete time;
 }
 
