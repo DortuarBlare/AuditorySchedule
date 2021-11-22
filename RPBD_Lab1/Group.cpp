@@ -2,32 +2,20 @@
 
 Group::Group() {
 	this->id = -1;
-	this->group = "...";
+	this->groupName = "...";
 }
 
 Group::Group(string group) {
 	this->id = -1;
-	this->group = group;
+	this->groupName = group;
 }
 
 Group::Group(const Group& forCopy) {
 	this->id = forCopy.id;
-	this->group = forCopy.group;
+	this->groupName = forCopy.groupName;
 }
 
-bool Group::operator==(Group& forComparison) {
-	return
-		this->id == forComparison.id &&
-		this->group == forComparison.group;
-}
-
-bool Group::operator!=(Group& forComparison) {
-	return
-		this->id != forComparison.id &&
-		this->group != forComparison.group;
-}
-
-int Group::getId() {
+int& Group::getId() {
 	return this->id;
 }
 
@@ -35,24 +23,36 @@ void Group::setId(int id) {
 	this->id = id;
 }
 
-string Group::getGroup() {
-	return this->group;
+string Group::getGroupName() {
+	return this->groupName;
 }
 
-void Group::setGroup(string newGroup) {
-	this->group = newGroup;
+void Group::setGroupName(string newGroup) {
+	this->groupName = newGroup;
+}
+
+bool operator==(const Group& left, const Group& right) {
+	return
+		left.id == right.id &&
+		left.groupName == right.groupName;
+}
+
+bool operator!=(const Group& left, const Group& right) {
+	return
+		left.id != right.id &&
+		left.groupName != right.groupName;
 }
 
 ostream& operator<<(ostream& os, Group& output) {
 	os << "ID:\t" << output.id << endl;
-	os << "Группа:\t" << output.group << endl;
+	os << "Группа:\t" << output.groupName << endl;
 
 	return os;
 }
 
 istream& operator>>(istream& is, Group& input) {
 	cout << "Введите группу: ";
-	getline(is, input.group);
+	getline(is, input.groupName);
 
 	return is;
 }

@@ -18,37 +18,6 @@ Time::Time(const Time& forCopy) {
 	this->endTime = forCopy.endTime;
 }
 
-bool Time::operator==(Time& forComparison) {
-	return
-		this->id == forComparison.id &&
-		this->startTime == forComparison.startTime &&
-		this->endTime == forComparison.endTime;
-}
-
-bool Time::operator!=(Time& forComparison) {
-	return
-		this->id != forComparison.id &&
-		this->startTime != forComparison.startTime &&
-		this->endTime != forComparison.endTime;
-}
-
-ostream& operator<<(ostream& os, Time& output) {
-	os << "ID:\t" << output.id << endl;
-	os << "¬рем€:\t" << output.startTime << " - " << output.endTime << endl;
-
-	return os;
-}
-
-istream& operator>>(istream& is, Time& input) {
-	cout << "¬ведите начальное врем€: ";
-	getline(is, input.startTime);
-
-	cout << "¬ведите конечное врем€: ";
-	getline(is, input.endTime);
-
-	return is;
-}
-
 int Time::getId() {
 	return this->id;
 }
@@ -71,4 +40,35 @@ string Time::getEndTime() {
 
 void Time::setEndTime(string newEndTime) {
 	this->endTime = newEndTime;
+}
+
+bool operator==(const Time& left, const Time& right) {
+	return
+		left.id == right.id &&
+		left.startTime == right.startTime &&
+		left.endTime == right.endTime;
+}
+
+bool operator!=(const Time& left, const Time& right) {
+	return
+		left.id != right.id &&
+		left.startTime != right.startTime &&
+		left.endTime != right.endTime;
+}
+
+ostream& operator<<(ostream& os, Time& output) {
+	os << "ID:\t" << output.id << endl;
+	os << "¬рем€:\t" << output.startTime << " - " << output.endTime << endl;
+
+	return os;
+}
+
+istream& operator>>(istream& is, Time& input) {
+	cout << "¬ведите начальное врем€: ";
+	getline(is, input.startTime);
+
+	cout << "¬ведите конечное врем€: ";
+	getline(is, input.endTime);
+
+	return is;
 }

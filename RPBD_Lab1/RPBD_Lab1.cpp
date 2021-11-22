@@ -44,7 +44,7 @@ void printMenu(int width) {
     cout << '|'; printedSymbolsInRow++;
     for (int i = 1; i <= symbolsToPrint; i++, printedSymbolsInRow++)
         cout << ' ';
-    currentString = "  б) расписание у группы";
+    currentString = "  б) все аудитории";
     cout << currentString;
     printedSymbolsInRow += currentString.length();
     for (int i = 1; i < width - printedSymbolsInRow; i++) cout << ' ';
@@ -54,17 +54,7 @@ void printMenu(int width) {
     cout << '|'; printedSymbolsInRow++;
     for (int i = 1; i <= symbolsToPrint; i++, printedSymbolsInRow++)
         cout << ' ';
-    currentString = "  в) все аудитории";
-    cout << currentString;
-    printedSymbolsInRow += currentString.length();
-    for (int i = 1; i < width - printedSymbolsInRow; i++) cout << ' ';
-    printedSymbolsInRow = 0;
-    cout << '|' << endl;
-
-    cout << '|'; printedSymbolsInRow++;
-    for (int i = 1; i <= symbolsToPrint; i++, printedSymbolsInRow++)
-        cout << ' ';
-    currentString = "  г) все группы";
+    currentString = "  в) все группы";
     cout << currentString;
     printedSymbolsInRow += currentString.length();
     for (int i = 1; i < width - printedSymbolsInRow; i++) cout << ' ';
@@ -301,6 +291,21 @@ void printMenu(int width) {
     for (int i = 1; i <= width - 2; i++) cout << ' ';
     cout << '|' << endl;
 
+    currentString = "7) Сохранить все в базу данных";
+    symbolsToPrint = (width / 2) - (currentString.length() / 2);
+    cout << '|'; printedSymbolsInRow++;
+    for (int i = 1; i <= symbolsToPrint; i++, printedSymbolsInRow++)
+        cout << ' ';
+    cout << currentString;
+    printedSymbolsInRow += currentString.length();
+    for (int i = 1; i < width - printedSymbolsInRow; i++) cout << ' ';
+    printedSymbolsInRow = 0;
+    cout << '|' << endl;
+
+    cout << '|';
+    for (int i = 1; i <= width - 2; i++) cout << ' ';
+    cout << '|' << endl;
+
     currentString = "0) Выход";
     symbolsToPrint = (width / 2) - (currentString.length() / 2);
     cout << '|'; printedSymbolsInRow++;
@@ -339,22 +344,14 @@ int main() {
         case 1:
             cin >> charChoice;
             switch (charChoice) {
-            case 'а':
-                //dataMapper.showAll();
+            case 'а': {
                 scheduleTable.showAll();
                 break;
+            }
             case 'б':
-                cout << "Введите группу: ";
-                cin >> stringChoice;
-                cout << endl;
-                dataMapper.showByGroup(stringChoice);
-                break;
-            case 'в':
-                //dataMapper.showAllAuditories();
                 scheduleTable.showAllAuditories();
                 break;
-            case 'г':
-                //dataMapper.showAllGroups();
+            case 'в':
                 scheduleTable.showAllGroups();
                 break;
             default:
@@ -387,19 +384,31 @@ int main() {
                 cout << "Введите конечное время: ";
                 cin >> endTime;
 
-                scheduleTable.insertSchedule(auditory, group, week, day, startTime, endTime);
+                if (scheduleTable.insertSchedule(auditory, group, week, day, startTime, endTime))
+                    cout << "Вставка расписания прошла успешно :)" << endl;
+                else 
+                    cout << "Вставка расписания прошла неудачно. Проверьте правильность ввода данных :(" << endl;
 
                 break;
             }
             case 'б':
                 cout << "Введите аудиторию: ";
                 cin >> stringChoice;
-                scheduleTable.insertAuditory(stringChoice);
+
+                if (scheduleTable.insertAuditory(stringChoice))
+                    cout << "Вставка аудитории прошла успешно :)" << endl;
+                else 
+                    cout << "Вставка аудитории прошла неудачно. Проверьте правильность ввода данных :(" << endl;
+                
                 break;
             case 'в':
                 cout << "Введите группу: ";
                 cin >> stringChoice;
-                scheduleTable.insertGroup(stringChoice);
+
+                if (scheduleTable.insertGroup(stringChoice))
+                    cout << "Вставка группы прошла успешно :)" << endl;
+                else cout << "Вставка группы прошла неудачно. Проверьте правильность ввода данных :(" << endl;
+
                 break;
             default:
                 break;
@@ -408,67 +417,114 @@ int main() {
         case 3:
             cin >> charChoice;
             switch (charChoice) {
-            case 'а':
+            case 'а': {
+                string auditory;
+                string group;
+                string week;
+                string day;
+                string startTime;
+                string endTime;
+                bool success = false;
+
                 cout << "Введите порядковый номер расписания: ";
                 cin >> choice;
-                cin >> tempSchedule;
-                if (dataMapper.fullEdit(choice, tempSchedule)) cout << "Редактирование прошло успешно :)" << endl;
-                else cout << "Что-то пошло не так, проверьте правильность ввода данных :(" << endl;
+                cout << "Введите новую аудиторию: ";
+                cin >> auditory;
+                cout << "Введите новую группу: ";
+                cin >> group;
+                cout << "Введите новые недели: ";
+                cin.ignore();
+                getline(cin, week);
+                cout << "Введите новый день недели: ";
+                cin >> day;
+                cout << "Введите новое начальное время: ";
+                cin >> startTime;
+                cout << "Введите новое конечное время: ";
+                cin >> endTime;
+                
+                if (scheduleTable.fullScheduleEdit(choice, auditory, group, week, day, startTime, endTime))
+                    cout << "Редактирование расписания прошло успешно :)" << endl;
+                else
+                    cout << "Редактирование расписания прошло неудачно. Проверьте правильность ввода данных :(" << endl;
+                
                 break;
-            case 'б':
+            }
+            case 'б': {
                 cout << "Введите порядковый номер расписания: ";
                 cin >> choice;
                 cout << "Введите новую аудиторию: ";
                 cin >> stringChoice;
-                //if (dataMapper.edit(choice, Schedule(stringChoice, "...", "...", "...", "...")))
-                    //cout << "Редактирование прошло успешно :)" << endl;
-                //else cout << "Что-то пошло не так, проверьте правильность ввода данных :(" << endl;
+
+                if (scheduleTable.editAuditoryInSchedule(choice, stringChoice))
+                    cout << "Редактирование аудитории в расписании прошло успешно :)" << endl;
+                else
+                    cout << "Редактирование аудитории в расписании прошло неудачно. Проверьте правильность ввода данных :(" << endl;
+
                 break;
+            }
             case 'в':
                 cout << "Введите порядковый номер расписания: ";
                 cin >> choice;
                 cout << "Введите новую группу: ";
                 cin >> stringChoice;
-                //if (dataMapper.edit(choice, Schedule("...", stringChoice, "...", "...", "...")))
-                    //cout << "Редактирование прошло успешно :)" << endl;
-                //else cout << "Что-то пошло не так, проверьте правильность ввода данных :(" << endl;
+
+                if (scheduleTable.editGroupInSchedule(choice, stringChoice))
+                    cout << "Редактирование группы в расписании прошло успешно :)" << endl;
+                else
+                    cout << "Редактирование группы в расписании прошло неудачно. Проверьте правильность ввода данных :(" << endl;
+
                 break;
             case 'г':
                 cout << "Введите порядковый номер расписания: ";
                 cin >> choice;
                 cout << "Введите новый день недели: ";
                 cin >> stringChoice;
-                //if (dataMapper.edit(choice, Schedule("...", "...", "...", stringChoice, "...")))
-                    //cout << "Редактирование прошло успешно :)" << endl;
-                //else cout << "Что-то пошло не так, проверьте правильность ввода данных :(" << endl;
+
+                if (scheduleTable.editDayInSchedule(choice, stringChoice))
+                    cout << "Редактирование дня недели в расписании прошло успешно :)" << endl;
+                else
+                    cout << "Редактирование дня недели в расписании прошло неудачно. Проверьте правильность ввода данных :(" << endl;
+
                 break;
-            case 'д':
+            case 'д': {
+                string newEndTime;
+
                 cout << "Введите порядковый номер расписания: ";
                 cin >> choice;
-                cout << "Введите новое время: ";
+                cout << "Введите новое начальное время: ";
                 cin >> stringChoice;
-                //if (dataMapper.edit(choice, Schedule("...", "...", "...", "...", stringChoice)))
-                    //cout << "Редактирование прошло успешно :)" << endl;
-                //else cout << "Что-то пошло не так, проверьте правильность ввода данных :(" << endl;
+                cout << "Введите новое конечное время: ";
+                cin >> newEndTime;
+
+                if (scheduleTable.editTimeInSchedule(choice, stringChoice, newEndTime))
+                    cout << "Редактирование времени в расписании прошло успешно :)" << endl;
+                else
+                    cout << "Редактирование времени в расписании прошло неудачно. Проверьте правильность ввода данных :(" << endl;
+
                 break;
-            case 'е':
-                cout << "Введите порядковый номер аудитории: ";
-                cin >> choice;
+            }
+            case 'е': {
+                string oldAuditory;
+                cout << "Введите старую аудиторию: ";
+                cin >> oldAuditory;
                 cout << "Введите новую аудиторию: ";
                 cin >> stringChoice;
-                //if (dataMapper.editAuditory(choice, stringChoice))
-                    //cout << "Редактирование прошло успешно :)" << endl;
-                //else cout << "Что-то пошло не так, проверьте правильность ввода данных :(" << endl;
+                if (scheduleTable.editAuditory(oldAuditory, stringChoice))
+                    cout << "Редактирование аудитории прошло успешно :)" << endl;
+                else
+                    cout << "Редактирование аудитории прошло неудачно. Проверьте правильность ввода данных :(" << endl;
                 break;
+            }
             case 'ж': {
                 string oldGroup;
                 cout << "Введите старую группу: ";
                 cin >> oldGroup;
                 cout << "Введите новую группу: ";
                 cin >> stringChoice;
-                if (dataMapper.editGroup(oldGroup, stringChoice))
-                    cout << "Редактирование прошло успешно :)" << endl;
-                else cout << "Что-то пошло не так, проверьте правильность ввода данных :(" << endl;
+                if (scheduleTable.editGroup(oldGroup, stringChoice))
+                    cout << "Редактирование группы прошло успешно :)" << endl;
+                else
+                    cout << "Редактирование группы прошло неудачно. Проверьте правильность ввода данных :(" << endl;
                 break;
             }
             default:
@@ -481,19 +537,26 @@ int main() {
             case 'а':
                 cout << "Введите порядковый номер расписания для удаления: ";
                 cin >> choice;
-                scheduleTable.removeSchedule(choice);
+                if (scheduleTable.removeSchedule(choice))
+                    cout << "Удаление расписания прошло успешно :)" << endl;
+                else 
+                    cout << "Удаление расписания прошло неудачно. Проверьте правильность ввода данных :(" << endl;
                 break;
             case 'б':
                 cout << "Введите аудиторию для удаления: ";
                 cin >> stringChoice;
-                if (dataMapper.removeAuditory(stringChoice)) cout << "Удаление прошло успешно :)" << endl;
-                else cout << "Что-то пошло не так, проверьте правильность ввода данных :(" << endl;
+                if (scheduleTable.removeAuditory(stringChoice))
+                    cout << "Удаление аудитории прошло успешно :)" << endl;
+                else
+                    cout << "Удаление аудитории прошло неудачно. Проверьте правильность ввода данных :(" << endl;
                 break;
             case 'в':
                 cout << "Введите группу для удаления: ";
                 cin >> stringChoice;
-                if (dataMapper.removeGroup(stringChoice)) cout << "Удаление прошло успешно :)" << endl;
-                else cout << "Что-то пошло не так, проверьте правильность ввода данных :(" << endl;
+                if (scheduleTable.removeGroup(stringChoice))
+                    cout << "Удаление группы прошло успешно :)" << endl;
+                else
+                    cout << "Удаление группы прошло неудачно. Проверьте правильность ввода данных :(" << endl;
                 break;
             default:
                 break;
@@ -512,6 +575,9 @@ int main() {
             cout << "Введите номер недели: ";
             cin >> weekNumber;
             dataMapper.findFreeAuditoryByNumberOfHours(choice, weekNumber);
+            break;
+        case 7:
+            dataMapper.saveAll(scheduleTable);
             break;
         case 0:
             return 0;

@@ -6,20 +6,20 @@ using namespace std;
 class Group {
 private:
 	int id;
-	string group;
+	string groupName;
 
 public:
 	Group();
 	Group(string group);
 	Group(const Group& forCopy);
 
-	bool operator==(Group& forComparison);
-	bool operator!=(Group& forComparison);
+	int& getId();
+	void setId(int id);
+	string getGroupName();
+	void setGroupName(string newGroup);
+
+	friend bool operator==(const Group& left, const Group& right);
+	friend bool operator!=(const Group& left, const Group& right);
 	friend ostream& operator<<(ostream& os, Group& output);
 	friend istream& operator>>(istream& is, Group& input);
-
-	int getId();
-	void setId(int id);
-	string getGroup();
-	void setGroup(string newGroup);
 };

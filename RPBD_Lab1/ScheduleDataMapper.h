@@ -1,8 +1,9 @@
 #pragma once
+#include "Schedule.h"
+#include "ScheduleTable.h"
 #include <Windows.h>
 #include <odbcinst.h>
 #include <sqlext.h>
-#include "Schedule.h"
 #include <vector>
 #include <iostream>
 using namespace std;
@@ -34,6 +35,14 @@ public:
     bool removeGroup(string groupChoice);
     void findFreeAuditoryByTime(string timeChoice);
     void findFreeAuditoryByNumberOfHours(int numberOfHoursChoice, int weekNumber);
+
+    void saveAll(ScheduleTable& scheduleTable);
+    void saveAllSchedule(vector<Schedule>& scheduleList);
+    int saveSchedule(Schedule& schedule);
+    void saveAllAuditories(vector<Auditory>& auditoryList);
+    int saveAuditory(Auditory& auditory);
+    void saveAllGroups(vector<Group>& groupList);
+    int saveGroup(Group& group);
     void createTables();
 
     int connectToDB();
