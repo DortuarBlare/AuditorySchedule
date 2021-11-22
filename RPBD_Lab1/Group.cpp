@@ -5,6 +5,11 @@ Group::Group() {
 	this->groupName = "...";
 }
 
+Group::Group(int id, string group) {
+	this->id = id;
+	this->groupName = group;
+}
+
 Group::Group(string group) {
 	this->id = -1;
 	this->groupName = group;

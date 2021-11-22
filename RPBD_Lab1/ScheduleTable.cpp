@@ -14,6 +14,20 @@ ScheduleTable::~ScheduleTable() {
 	//this->timeList.shrink_to_fit();
 }
 
+bool ScheduleTable::insertSchedule(Schedule schedule) {
+	bool success = false;
+
+	if (!auditoryExist(schedule.getAuditory().getAuditoryName())) insertAuditory(schedule.getAuditory());
+	if (!groupExist(schedule.getGroup().getGroupName())) insertGroup(schedule.getGroup());
+
+	if (!scheduleExist(schedule)) {
+		scheduleList.push_back(schedule);
+		success = true;
+	}
+
+	return success;
+}
+
 bool ScheduleTable::insertSchedule(string auditory, string group, string week, string day, string startTime, string endTime) {
 	int weekNumber = 0;
 	int amountOfWeeks = 0;
@@ -36,6 +50,17 @@ bool ScheduleTable::insertSchedule(string auditory, string group, string week, s
 	return success;
 }
 
+bool ScheduleTable::insertAuditory(Auditory auditory) {
+	bool success = false;
+	int size = auditoryList.size();
+
+	auditoryList.push_back(auditory);
+
+	if (size < auditoryList.size()) success = true;
+
+	return success;
+}
+
 bool ScheduleTable::insertAuditory(string auditory) {
 	bool success = false;
 	int size = auditoryList.size();
@@ -43,6 +68,17 @@ bool ScheduleTable::insertAuditory(string auditory) {
 	auditoryList.push_back(Auditory(auditory));
 
 	if (size < auditoryList.size()) success = true;
+
+	return success;
+}
+
+bool ScheduleTable::insertGroup(Group group) {
+	bool success = false;
+	int size = groupList.size();
+
+	groupList.push_back(group);
+
+	if (size < groupList.size()) success = true;
 
 	return success;
 }
@@ -120,11 +156,16 @@ void ScheduleTable::showAllGroups() {
 		cout << i.getGroupName() << endl;
 }
 
+// Добавить проверку совпадения Schedule
 bool ScheduleTable::fullScheduleEdit(int number, string auditory, string group, string week, string day, string startTime, string endTime) {
-	if (removeSchedule(number))
-		return insertSchedule(auditory, group, week, day, startTime, endTime);
+	bool success = false;
 
-	return false;
+	if (removeSchedule(number)) {
+		success = insertSchedule(auditory, group, week, day, startTime, endTime);
+		updateEachIdInSchedule();
+	}
+
+	return success;
 }
 
 bool ScheduleTable::editAuditoryInSchedule(int number, string newAuditoryName) {
@@ -134,20 +175,35 @@ bool ScheduleTable::editAuditoryInSchedule(int number, string newAuditoryName) {
 		cout << "Расписание отсутствует" << endl;
 		return success;
 	}
+	
+	if (auditoryExist(newAuditoryName)) {
+		vector<int> indexesRange = getIndexesRangeOfSchedule(number);
+		Auditory forNewId = findAuditory(newAuditoryName);
 
-	vector<int> indexesRange = getIndexesRangeOfSchedule(number);
+		if (indexesRange[0] == indexesRange[1]) {
+			Schedule forScheduleCoincidence = scheduleList[indexesRange[0]];
+			forScheduleCoincidence.getAuditory().setAuditoryName(newAuditoryName);
+			
+			if (!scheduleExist(forScheduleCoincidence)) {
+				scheduleList[indexesRange[0]].getAuditory().setId(forNewId.getId());
+				scheduleList[indexesRange[0]].getAuditory().setAuditoryName(newAuditoryName);
+				success = true;
+			}
+		}
+		else {
+			for (int i = indexesRange[0]; i <= indexesRange[1]; i++) {
+				Schedule forScheduleCoincidence = scheduleList[i];
+				forScheduleCoincidence.getAuditory().setAuditoryName(newAuditoryName);
 
-	if (indexesRange[0] == indexesRange[1]) {
-		scheduleList[indexesRange[0]].getAuditory().setAuditoryName(newAuditoryName);
-		
-		success = true;
+				if (!scheduleExist(forScheduleCoincidence)) {
+					scheduleList[i].getAuditory().setId(forNewId.getId());
+					scheduleList[i].getAuditory().setAuditoryName(newAuditoryName);
+					success = true;
+				}
+			}
+		}
 	}
-	else {
-		for (int i = indexesRange[0]; i <= indexesRange[1]; i++) 
-			scheduleList[i].getAuditory().setAuditoryName(newAuditoryName);
-
-		success = true;
-	}
+	else cout << "Данная аудитория отсутствует. Сначала добавьте данную аудиторию (0_0)" << endl;
 
 	return success;
 }
@@ -160,18 +216,32 @@ bool ScheduleTable::editGroupInSchedule(int number, string newGroupName) {
 		return success;
 	}
 
-	vector<int> indexesRange = getIndexesRangeOfSchedule(number);
+	if (groupExist(newGroupName)) {
+		vector<int> indexesRange = getIndexesRangeOfSchedule(number);
+		Group forNewId = findGroup(newGroupName);
 
-	if (indexesRange[0] == indexesRange[1]) {
-		scheduleList[indexesRange[0]].getGroup().setGroupName(newGroupName);
+		if (indexesRange[0] == indexesRange[1]) {
+			Schedule forScheduleCoincidence = scheduleList[indexesRange[0]];
+			forScheduleCoincidence.getGroup().setGroupName(newGroupName);
 
-		success = true;
-	}
-	else {
-		for (int i = indexesRange[0]; i <= indexesRange[1]; i++) 
-			scheduleList[i].getGroup().setGroupName(newGroupName);
+			if (!scheduleExist(forScheduleCoincidence)) {
+				scheduleList[indexesRange[0]].getGroup().setId(forNewId.getId());
+				scheduleList[indexesRange[0]].getGroup().setGroupName(newGroupName);
+				success = true;
+			}
+		}
+		else {
+			for (int i = indexesRange[0]; i <= indexesRange[1]; i++) {
+				Schedule forScheduleCoincidence = scheduleList[i];
+				forScheduleCoincidence.getGroup().setGroupName(newGroupName);
 
-		success = true;
+				if (!scheduleExist(forScheduleCoincidence)) {
+					scheduleList[i].getGroup().setId(forNewId.getId());
+					scheduleList[i].getGroup().setGroupName(newGroupName);
+					success = true;
+				}	
+			}
+		}
 	}
 
 	return success;
@@ -188,14 +258,25 @@ bool ScheduleTable::editDayInSchedule(int number, string newDay) {
 	vector<int> indexesRange = getIndexesRangeOfSchedule(number);
 
 	if (indexesRange[0] == indexesRange[1]) {
-		scheduleList[indexesRange[0]].setDay(newDay);
-		success = true;
+		Schedule forScheduleCoincidence = scheduleList[indexesRange[0]];
+		forScheduleCoincidence.setDay(newDay);
+
+		if (!scheduleExist(forScheduleCoincidence)) {
+			scheduleList[indexesRange[0]].setDay(newDay);
+			success = true;
+		}
 	}
 	else {
-		for (int i = indexesRange[0]; i <= indexesRange[1]; i++) 
-			scheduleList[i].setDay(newDay);
+		for (int i = indexesRange[0]; i <= indexesRange[1]; i++) {
+			Schedule forScheduleCoincidence = scheduleList[indexesRange[0]];
+			forScheduleCoincidence.setDay(newDay);
+
+			if (!scheduleExist(forScheduleCoincidence)) {
+				scheduleList[i].setDay(newDay);
+				success = true;
+			}
+		}
 		
-		success = true;
 	}
 
 	return success;
@@ -212,18 +293,28 @@ bool ScheduleTable::editTimeInSchedule(int number, string newStartTime, string n
 	vector<int> indexesRange = getIndexesRangeOfSchedule(number);
 
 	if (indexesRange[0] == indexesRange[1]) {
-		scheduleList[indexesRange[0]].getTime().setStartTime(newStartTime);
-		scheduleList[indexesRange[0]].getTime().setStartTime(newEndTime);
+		Schedule forScheduleCoincidence = scheduleList[indexesRange[0]];
+		forScheduleCoincidence.getTime().setStartTime(newStartTime);
+		forScheduleCoincidence.getTime().setEndTime(newEndTime);
 
-		success = true;
+		if (!scheduleExist(forScheduleCoincidence)) {
+			scheduleList[indexesRange[0]].getTime().setStartTime(newStartTime);
+			scheduleList[indexesRange[0]].getTime().setEndTime(newEndTime);
+			success = true;
+		}
 	}
 	else {
 		for (int i = indexesRange[0]; i <= indexesRange[1]; i++) {
-			scheduleList[i].getTime().setStartTime(newStartTime);
-			scheduleList[i].getTime().setStartTime(newEndTime);
-		}
+			Schedule forScheduleCoincidence = scheduleList[i];
+			forScheduleCoincidence.getTime().setStartTime(newStartTime);
+			forScheduleCoincidence.getTime().setEndTime(newEndTime);
 
-		success = true;
+			if (!scheduleExist(forScheduleCoincidence)) {
+				scheduleList[i].getTime().setStartTime(newStartTime);
+				scheduleList[i].getTime().setEndTime(newEndTime);
+				success = true;
+			}	
+		}
 	}
 
 	return success;
@@ -245,6 +336,10 @@ bool ScheduleTable::editAuditory(string oldAuditory, string newAuditory) {
 		}
 	}
 
+	for (auto& i : scheduleList)
+		if (i.getAuditory().getAuditoryName() == oldAuditory)
+			i.getAuditory().setAuditoryName(newAuditory);
+
 	return success;
 }
 
@@ -263,6 +358,10 @@ bool ScheduleTable::editGroup(string oldGroup, string newGroup) {
 			break;
 		}
 	}
+
+	for (auto& i : scheduleList)
+		if (i.getGroup().getGroupName() == oldGroup)
+			i.getGroup().setGroupName(newGroup);
 
 	return success;
 }
@@ -304,6 +403,11 @@ bool ScheduleTable::removeAuditory(string auditory) {
 		}
 	}
 
+	for (int i = 0; i < scheduleList.size(); i++) {
+		if (scheduleList[i].getAuditory().getAuditoryName() == auditory)
+			scheduleList.erase(scheduleList.begin() + i--);
+	}
+
 	if (size > auditoryList.size()) success = true;
 
 	return success;
@@ -325,9 +429,52 @@ bool ScheduleTable::removeGroup(string group) {
 		}
 	}
 
+	for (int i = 0; i < scheduleList.size(); i++) {
+		if (scheduleList[i].getGroup().getGroupName() == group)
+			scheduleList.erase(scheduleList.begin() + i--);
+	}
+
 	if (size > groupList.size()) success = true;
 
 	return success;
+}
+
+Schedule ScheduleTable::findSchedule(string auditory, int week, string day, string startTime, string endTime) {
+	for (auto& i : scheduleList)
+		if (i.getAuditory().getAuditoryName() == auditory &&
+			i.getWeek() == week &&
+			i.getDay() == day &&
+			i.getTime().getStartTime() == startTime &&
+			i.getTime().getEndTime() == endTime) return i;
+
+	return Schedule();
+}
+
+Auditory ScheduleTable::findAuditory(string auditory) {
+	for (auto& i : auditoryList)
+		if (i.getAuditoryName() == auditory)
+			return i;
+
+	return Auditory();
+}
+
+Group ScheduleTable::findGroup(string group) {
+	for (auto& i : groupList)
+		if (i.getGroupName() == group)
+			return i;
+
+	return Group();
+}
+
+bool ScheduleTable::scheduleExist(Schedule schedule) {
+	for (auto& i : scheduleList)
+		if (i.getAuditory().getAuditoryName() == schedule.getAuditory().getAuditoryName() &&
+			i.getWeek() == schedule.getWeek() &&
+			i.getDay() == schedule.getDay() &&
+			i.getTime().getStartTime() == schedule.getTime().getStartTime() &&
+			i.getTime().getEndTime() == schedule.getTime().getEndTime()) return true;
+
+	return false;
 }
 
 bool ScheduleTable::scheduleExist(string auditory, int week, string day, string startTime, string endTime) {
@@ -407,10 +554,6 @@ vector<int> ScheduleTable::getIndexesRangeOfSchedule(int number) {
 
 vector<Schedule>& ScheduleTable::getScheduleList() {
 	return scheduleList;
-}
-
-void ScheduleTable::setScheduleList(vector<Schedule> scheduleList) {
-	this->scheduleList = scheduleList;
 }
 
 vector<Auditory>& ScheduleTable::getAuditoryList() {

@@ -10,6 +10,7 @@ private:
 
 public:
 	Auditory();
+	Auditory(int id, string auditory);
 	Auditory(string auditory);
 	Auditory(const Auditory& forCopy);
 

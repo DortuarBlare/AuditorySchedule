@@ -17,18 +17,19 @@ private:
 
 public:
 	Schedule();
+	Schedule(int id, Auditory auditory, Group group, int week, string day, Time time);
 	Schedule(string auditory, string group, int week, string day, string startTime, string endTime);
 	Schedule(const Schedule& forCopy);
 
 	void print();
 
-	int getId();
+	int& getId();
 	void setId(int id);
 
 	Auditory& getAuditory();
 	void setAuditory(Auditory auditory);
 
-	int getWeek();
+	int& getWeek();
 	void setWeek(int week);
 
 	Group& getGroup();

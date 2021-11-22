@@ -10,6 +10,7 @@ private:
 
 public:
 	Group();
+	Group(int id, string group);
 	Group(string group);
 	Group(const Group& forCopy);
 

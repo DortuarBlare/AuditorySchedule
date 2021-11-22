@@ -306,6 +306,21 @@ void printMenu(int width) {
     for (int i = 1; i <= width - 2; i++) cout << ' ';
     cout << '|' << endl;
 
+    currentString = "8) Загрузить все из базы данных";
+    symbolsToPrint = (width / 2) - (currentString.length() / 2);
+    cout << '|'; printedSymbolsInRow++;
+    for (int i = 1; i <= symbolsToPrint; i++, printedSymbolsInRow++)
+        cout << ' ';
+    cout << currentString;
+    printedSymbolsInRow += currentString.length();
+    for (int i = 1; i < width - printedSymbolsInRow; i++) cout << ' ';
+    printedSymbolsInRow = 0;
+    cout << '|' << endl;
+
+    cout << '|';
+    for (int i = 1; i <= width - 2; i++) cout << ' ';
+    cout << '|' << endl;
+
     currentString = "0) Выход";
     symbolsToPrint = (width / 2) - (currentString.length() / 2);
     cout << '|'; printedSymbolsInRow++;
@@ -578,6 +593,9 @@ int main() {
             break;
         case 7:
             dataMapper.saveAll(scheduleTable);
+            break;
+        case 8:
+            dataMapper.loadAll(scheduleTable);
             break;
         case 0:
             return 0;

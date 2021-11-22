@@ -6,6 +6,12 @@ Time::Time() {
 	this->endTime = "...";
 }
 
+Time::Time(int id, string startTime, string endTime) {
+	this->id = id;
+	this->startTime = startTime;
+	this->endTime = endTime;
+}
+
 Time::Time(string startTime, string endTime) {
 	this->id = -1;
 	this->startTime = startTime;

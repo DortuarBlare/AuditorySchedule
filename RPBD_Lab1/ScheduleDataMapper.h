@@ -43,6 +43,7 @@ public:
     int saveAuditory(Auditory& auditory);
     void saveAllGroups(vector<Group>& groupList);
     int saveGroup(Group& group);
+    void loadAll(ScheduleTable& scheduleTable);
     void createTables();
 
     int connectToDB();

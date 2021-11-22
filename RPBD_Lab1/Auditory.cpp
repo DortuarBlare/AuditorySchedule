@@ -5,6 +5,11 @@ Auditory::Auditory() {
 	this->auditoryName = "...";
 }
 
+Auditory::Auditory(int id, string auditory) {
+	this->id = id;
+	this->auditoryName = auditory;
+}
+
 Auditory::Auditory(string auditory) {
 	this->id = -1;
 	this->auditoryName = auditory;

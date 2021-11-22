@@ -9,6 +9,15 @@ Schedule::Schedule() {
 	this->time = Time();
 }
 
+Schedule::Schedule(int id, Auditory auditory, Group group, int week, string day, Time time) {
+	this->id = id;
+	this->auditory = Auditory(auditory);
+	this->group = Group(group);
+	this->week = week;
+	this->day = day;
+	this->time = Time(time);
+}
+
 Schedule::Schedule(string auditory, string group, int week, string day, string startTime, string endTime) {
 	this->id = -1;
 	this->auditory = Auditory(auditory);
@@ -36,7 +45,7 @@ void Schedule::print() {
 	cout << "Time:\t\t" << this->time << endl;
 }
 
-int Schedule::getId() {
+int& Schedule::getId() {
 	return this->id;
 }
 
@@ -52,7 +61,7 @@ void Schedule::setAuditory(Auditory newAuditory) {
 	this->auditory = newAuditory;
 }
 
-int Schedule::getWeek() {
+int& Schedule::getWeek() {
 	return this->week;
 }
 

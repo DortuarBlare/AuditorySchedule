@@ -11,6 +11,7 @@ private:
 
 public:
 	Time();
+	Time(int id, string startTime, string endTime);
 	Time(string startTime, string endTime);
 	Time(const Time& forCopy);
 

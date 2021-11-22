@@ -16,8 +16,11 @@ private:
 public:
 	~ScheduleTable();
 
+	bool insertSchedule(Schedule schedule);
 	bool insertSchedule(string auditory, string group, string week, string day, string startTime, string endTime);
+	bool insertAuditory(Auditory auditory);
 	bool insertAuditory(string auditory);
+	bool insertGroup(Group group);
 	bool insertGroup(string group);
 
 	void showAll();
@@ -36,6 +39,11 @@ public:
 	bool removeAuditory(string auditory);
 	bool removeGroup(string group);
 
+	Schedule findSchedule(string auditory, int week, string day, string startTime, string endTime);
+	Auditory findAuditory(string auditory);
+	Group findGroup(string group);
+
+	bool scheduleExist(Schedule schedule);
 	bool scheduleExist(string auditory, int week, string day, string startTime, string endTime);
 	bool auditoryExist(string auditory);
 	bool groupExist(string group);
@@ -44,7 +52,6 @@ public:
 
 	vector<int> getIndexesRangeOfSchedule(int number);
 	vector<Schedule>& getScheduleList();
-	void setScheduleList(vector<Schedule> scheduleList);
 	vector<Auditory>& getAuditoryList();
 	vector<Group>& getGroupList();
 };
