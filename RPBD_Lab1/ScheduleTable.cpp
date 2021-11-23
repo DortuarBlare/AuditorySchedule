@@ -94,6 +94,7 @@ bool ScheduleTable::insertGroup(string group) {
 	return success;
 }
 
+
 void ScheduleTable::showAll() {
 	if (this->scheduleList.size() == 0) {
 		cout << "Расписание отсутствует" << endl;
@@ -156,14 +157,80 @@ void ScheduleTable::showAllGroups() {
 		cout << i.getGroupName() << endl;
 }
 
-// Добавить проверку совпадения Schedule
-bool ScheduleTable::fullScheduleEdit(int number, string auditory, string group, string week, string day, string startTime, string endTime) {
+
+bool ScheduleTable::fullScheduleEdit(int number, string newAuditory, string newGroup, string newWeeks, string newDay, string newStartTime, string newEndTime) {
 	bool success = false;
 
-	if (removeSchedule(number)) {
-		success = insertSchedule(auditory, group, week, day, startTime, endTime);
-		updateEachIdInSchedule();
+	if (scheduleList.size() == 0) {
+		cout << "Расписание отсутствует" << endl;
+		return success;
 	}
+
+	if (auditoryExist(newAuditory) && groupExist(newGroup)) {
+		int weekNumber = 0;
+		int amountOfWeeks = 0;
+		int weeks[20]{};
+		stringstream in(newWeeks);
+		while (in >> weekNumber) weeks[amountOfWeeks++] = weekNumber;
+
+		vector<int> indexesRange = getIndexesRangeOfSchedule(number);
+
+		if (amountOfWeeks != (indexesRange[1] - indexesRange[0] + 1)) {
+			cout << "Было введено неверное количество недель. Необходимо тоже количество недель";
+			return success;
+		}
+
+		Auditory forNewId = findAuditory(newAuditory);
+		Group forNewIdGroup = findGroup(newGroup);
+
+		if (indexesRange[0] == indexesRange[1]) {
+			Schedule forScheduleCoincidence = scheduleList[indexesRange[0]];
+			forScheduleCoincidence.getAuditory().setAuditoryName(newAuditory);
+			forScheduleCoincidence.getGroup().setGroupName(newGroup);
+			forScheduleCoincidence.setWeek(weeks[0]);
+			forScheduleCoincidence.setDay(newDay);
+			forScheduleCoincidence.getTime().setStartTime(newStartTime);
+			forScheduleCoincidence.getTime().setEndTime(newEndTime);
+
+			if (!scheduleExist(forScheduleCoincidence)) {
+				scheduleList[indexesRange[0]].getAuditory().setId(forNewId.getId());
+				scheduleList[indexesRange[0]].getAuditory().setAuditoryName(newAuditory);
+				scheduleList[indexesRange[0]].getGroup().setId(forNewIdGroup.getId());
+				scheduleList[indexesRange[0]].getGroup().setGroupName(newGroup);
+				scheduleList[indexesRange[0]].setWeek(weeks[0]);
+				scheduleList[indexesRange[0]].setDay(newDay);
+				scheduleList[indexesRange[0]].getTime().setStartTime(newStartTime);
+				scheduleList[indexesRange[0]].getTime().setEndTime(newEndTime);
+				success = true;
+			}
+		}
+		else {
+			for (int i = indexesRange[0], j = 0; i <= indexesRange[1]; i++, j++) {
+				if (j == amountOfWeeks) break;
+
+				Schedule forScheduleCoincidence = scheduleList[i];
+				forScheduleCoincidence.getAuditory().setAuditoryName(newAuditory);
+				forScheduleCoincidence.getGroup().setGroupName(newGroup);
+				forScheduleCoincidence.setWeek(weeks[j]);
+				forScheduleCoincidence.setDay(newDay);
+				forScheduleCoincidence.getTime().setStartTime(newStartTime);
+				forScheduleCoincidence.getTime().setEndTime(newEndTime);
+
+				if (!scheduleExist(forScheduleCoincidence)) {
+					scheduleList[i].getAuditory().setId(forNewId.getId());
+					scheduleList[i].getAuditory().setAuditoryName(newAuditory);
+					scheduleList[i].getGroup().setId(forNewIdGroup.getId());
+					scheduleList[i].getGroup().setGroupName(newGroup);
+					scheduleList[i].setWeek(weeks[j]);
+					scheduleList[i].setDay(newDay);
+					scheduleList[i].getTime().setStartTime(newStartTime);
+					scheduleList[i].getTime().setEndTime(newEndTime);
+					success = true;
+				}
+			}
+		}
+	}
+	else cout << "Данная аудитория или группы отсутствует. Сначала добавьте аудиторию или группу (0_0)" << endl;
 
 	return success;
 }
@@ -366,6 +433,7 @@ bool ScheduleTable::editGroup(string oldGroup, string newGroup) {
 	return success;
 }
 
+
 bool ScheduleTable::removeSchedule(int number) {
 	bool success = false;
 	int size = scheduleList.size();
@@ -439,6 +507,135 @@ bool ScheduleTable::removeGroup(string group) {
 	return success;
 }
 
+
+void ScheduleTable::findFreeAuditoryByTime(string startTime, string endTime) {
+	vector<vector<string>> weeksAndDays;
+	vector<string> busyAuditory;
+
+	for (int i = 0; i < 18; i++) {
+		weeksAndDays.push_back(vector<string>());
+		weeksAndDays[i].push_back("Понедельник");
+		weeksAndDays[i].push_back("Вторник");
+		weeksAndDays[i].push_back("Среда");
+		weeksAndDays[i].push_back("Четверг");
+		weeksAndDays[i].push_back("Пятница");
+		weeksAndDays[i].push_back("Суббота");
+		weeksAndDays[i].push_back("Воскресенье");
+	}
+
+	for (auto& i : scheduleList) {
+		for (int k = 0; k < weeksAndDays[i.getWeek() - 1].size(); k++) {
+			if (weeksAndDays[i.getWeek() - 1][k] == i.getDay()) {
+				weeksAndDays[i.getWeek() - 1].erase(weeksAndDays[i.getWeek() - 1].begin() + k);
+				break;
+			}
+		}
+		if (!busyAuditory.empty()) {
+			if (busyAuditory[busyAuditory.size() - 1] != i.getAuditory().getAuditoryName())
+				busyAuditory.push_back(i.getAuditory().getAuditoryName());
+		}
+		else busyAuditory.push_back(i.getAuditory().getAuditoryName());
+
+	}
+
+	cout << "Аудитория(и): ";
+	for (int i = 0; i < busyAuditory.size(); i++)
+		cout << busyAuditory[i] << ' ';
+	cout << endl << "свободна(ы) в " << startTime << " - " << endTime << " в данные недели и дни:" << endl << endl;
+	for (int i = 0; i < 18; i++) {
+		if (i < 9) cout << ' ';
+		cout << i + 1 << " неделя:\t ";
+		for (int j = 0; j < weeksAndDays[i].size(); j++) {
+			if (j == weeksAndDays[i].size() - 1)
+				cout << weeksAndDays[i][j];
+			else
+				cout << weeksAndDays[i][j] << ", ";
+
+		}
+		cout << endl;
+	}
+	cout << endl << "Остальные аудитории в " << startTime << " - " << endTime << " свободны в любой день любой недели" << endl << endl;
+
+	weeksAndDays.clear();
+	weeksAndDays.shrink_to_fit();
+}
+
+void ScheduleTable::findFreeAuditoryByNumberOfHours(int numberOfHoursChoice, int weekNumber) {
+	vector<vector<string>> daysAndTime;
+	vector<string> busyAuditory;
+	double amountOfClasses = ceil(double(numberOfHoursChoice * 60) / 90);
+	double amountOfClassesOnEachDay = 0;
+	double temp = ceil(double(amountOfClasses) / 7);
+
+	for (int i = 0; i < 7; i++) {
+		daysAndTime.push_back(vector<string>());
+		daysAndTime[i].push_back("08:30-10:00");
+		daysAndTime[i].push_back("10:15-11:45");
+		daysAndTime[i].push_back("12:00-13:30");
+		daysAndTime[i].push_back("14:00-15:30");
+		daysAndTime[i].push_back("15:45-17:15");
+		daysAndTime[i].push_back("17:30-19:00");
+		daysAndTime[i].push_back("19:15-20:45");
+	}
+
+	for (auto& i : scheduleList) {
+		if (i.getWeek() == weekNumber) {
+			string time = i.getTime().getStartTime() + '-' + i.getTime().getEndTime();
+
+			int dayIndex;
+			if (i.getDay() == "Понедельник") dayIndex = 0;
+			else if (i.getDay() == "Вторник") dayIndex = 1;
+			else if (i.getDay() == "Среда") dayIndex = 2;
+			else if (i.getDay() == "Четверг") dayIndex = 3;
+			else if (i.getDay() == "Пятница") dayIndex = 4;
+			else if (i.getDay() == "Суббота") dayIndex = 5;
+			else if (i.getDay() == "Воскресенье") dayIndex = 6;
+
+			for (int k = 0; k < daysAndTime[dayIndex].size(); k++) {
+				if (daysAndTime[dayIndex][k] == time) {
+					daysAndTime[dayIndex].erase(daysAndTime[dayIndex].begin() + k);
+					break;
+				}
+			}
+
+			if (!busyAuditory.empty()) {
+				if (busyAuditory[busyAuditory.size() - 1] != i.getAuditory().getAuditoryName())
+					busyAuditory.push_back(i.getAuditory().getAuditoryName());
+			}
+			else busyAuditory.push_back(i.getAuditory().getAuditoryName());
+		}
+	}
+
+	cout << endl << "Аудитория(и): ";
+	for (int i = 0; i < busyAuditory.size(); i++)
+		cout << busyAuditory[i] << ' ';
+	cout << endl << "на " << ceil(double(numberOfHoursChoice * 60) / 90) << " занятий свободна(ы) на "
+		<< weekNumber << " неделе в данные дни и время:" << endl << endl;
+	for (int i = 0; i < 7; i++) {
+		amountOfClassesOnEachDay = amountOfClassesOnEachDay == 0 ? temp : temp + amountOfClassesOnEachDay;
+		if (i == 0)      cout << "Понедельник:\t ";
+		else if (i == 1) cout << "    Вторник:\t ";
+		else if (i == 2) cout << "      Среда:\t ";
+		else if (i == 3) cout << "    Четверг:\t ";
+		else if (i == 4) cout << "    Пятница:\t ";
+		else if (i == 5) cout << "    Суббота:\t ";
+		else if (i == 6) cout << "Воскресенье:\t ";
+		for (int j = 0; j < daysAndTime[i].size(); j++) {
+			cout << daysAndTime[i][j];
+			amountOfClasses--;
+			amountOfClassesOnEachDay--;
+			if (amountOfClasses == 0 || amountOfClassesOnEachDay == 0) break;
+			cout << ", ";
+		}
+		cout << endl;
+		if (amountOfClasses == 0) break;
+	}
+	cout << endl << "Остальные аудитории на " << weekNumber << " неделе свободны в любой день в любое время" << endl << endl;
+
+	daysAndTime.clear();
+	daysAndTime.shrink_to_fit();
+}
+
 Schedule ScheduleTable::findSchedule(string auditory, int week, string day, string startTime, string endTime) {
 	for (auto& i : scheduleList)
 		if (i.getAuditory().getAuditoryName() == auditory &&
@@ -465,6 +662,7 @@ Group ScheduleTable::findGroup(string group) {
 
 	return Group();
 }
+
 
 bool ScheduleTable::scheduleExist(Schedule schedule) {
 	for (auto& i : scheduleList)
@@ -504,6 +702,7 @@ bool ScheduleTable::groupExist(string group) {
 	return false;
 }
 
+
 void ScheduleTable::updateEachIdInSchedule() {
 	for (auto& schedule : scheduleList) {
 		for (auto& auditory : auditoryList)
@@ -516,6 +715,7 @@ void ScheduleTable::updateEachIdInSchedule() {
 	}
 
 }
+
 
 vector<int> ScheduleTable::getIndexesRangeOfSchedule(int number) {
 	vector<int> indexes;

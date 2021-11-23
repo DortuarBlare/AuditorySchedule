@@ -39,6 +39,8 @@ public:
 	bool removeAuditory(string auditory);
 	bool removeGroup(string group);
 
+	void findFreeAuditoryByTime(string newStartTime, string newEndTime);
+	void findFreeAuditoryByNumberOfHours(int numberOfHoursChoice, int weekNumber);
 	Schedule findSchedule(string auditory, int week, string day, string startTime, string endTime);
 	Auditory findAuditory(string auditory);
 	Group findGroup(string group);

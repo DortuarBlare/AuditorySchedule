@@ -261,7 +261,7 @@ void printMenu(int width) {
     for (int i = 1; i <= width - 2; i++) cout << ' ';
     cout << '|' << endl;
 
-    currentString = "5) Поиск свободной аудитории в заданные часы";
+    currentString = "5) Поиск свободной аудитории в заданные часы в течение всего семестра";
     symbolsToPrint = (width / 2) - (currentString.length() / 2);
     cout << '|'; printedSymbolsInRow++;
     for (int i = 1; i <= symbolsToPrint; i++, printedSymbolsInRow++)
@@ -577,19 +577,25 @@ int main() {
                 break;
             }
             break;
-        case 5:
-            cout << "Введите время: ";
+        case 5: {
+            string endTime;
+
+            cout << "Введите начальное время: ";
             cin >> stringChoice;
+            cout << "Введите конечное время: ";
+            cin >> endTime;
             cout << endl;
-            dataMapper.findFreeAuditoryByTime(stringChoice);
+            scheduleTable.findFreeAuditoryByTime(stringChoice, endTime);
+
             break;
+        }
         case 6:
             int weekNumber;
             cout << "Введите количество часов: ";
             cin >> choice;
             cout << "Введите номер недели: ";
             cin >> weekNumber;
-            dataMapper.findFreeAuditoryByNumberOfHours(choice, weekNumber);
+            scheduleTable.findFreeAuditoryByNumberOfHours(choice, weekNumber);
             break;
         case 7:
             dataMapper.saveAll(scheduleTable);
